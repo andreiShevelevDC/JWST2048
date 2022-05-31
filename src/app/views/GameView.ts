@@ -1,3 +1,5 @@
+import { DrawFieldComponent } from "../components/DrawFieldComponent";
+
 export class GameView extends Phaser.GameObjects.Container {
     private bkg: Phaser.GameObjects.Sprite;
     private racoon: SpineGameObject;
@@ -8,13 +10,17 @@ export class GameView extends Phaser.GameObjects.Container {
     }
 
     private init(): void {
-        this.initBkg();
-        this.initSpine();
+        //this.initBkg();
+        this.initField();
     }
 
     private initBkg(): void {
         const { width, height } = this.scene.scale.gameSize;
         this.bkg = this.scene.add.sprite(width / 2, height / 2, "bkg");
+    }
+
+    private initField(): void {
+        new DrawFieldComponent(this.scene);
     }
 
     private initSpine(): void {

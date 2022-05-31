@@ -8,8 +8,8 @@ const config = {
     transparent: false,
     antialiasGL: false,
     type: Phaser.WEBGL,
-    width: 1920,
-    height: 1332,
+    width: 800,
+    height: 800,
     input: {
         mouse: {
             preventDefaultWheel: false,
@@ -18,8 +18,9 @@ const config = {
     scale: {
         parent: "phaser-game",
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.RESIZE,
     },
+    backgroundColor: "#000",
     plugins: {
         scene: [
             {

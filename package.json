@@ -1,18 +1,19 @@
 {
-    "name": "phaser3-staring-template",
+    "name": "jwst2048",
     "version": "1.0.0",
-    "description": "Phaser3 template with typescript, automatic spriteSheet generation and ninepatch",
+    "description": "MVP based on Ninepatch template by arsenmazmanyan",
     "main": "src/app.js",
     "scripts": {
         "generateAssets": "node nodeScripts/GenerateAssets.js",
-        "start": "npm run generateAssets && webpack serve --config webpack/webpack.dev.js",
+        "start_orig": "npm run generateAssets && webpack serve --config webpack/webpack.dev.js",
+        "start": "webpack serve --config webpack/webpack.dev.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "eslint . --ext .ts",
         "format": "prettier --check src/app/**",
         "format:write": "prettier --write src/app/**"
     },
-    "author": "",
-    "license": "ISC",
+    "author": "andreiShevelevDC",
+    "license": "Property of doublecoconut.com",
     "engines": {
         "node": ">=12"
     },
