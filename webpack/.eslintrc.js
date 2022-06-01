@@ -5,7 +5,7 @@ module.exports = {
         es6: true,
         node: true,
     },
-    extends: ["airbnb-base", "prettier", "plugin:node/recommended", "plugin:import/recommended"],
+    extends: ["prettier", "plugin:import/recommended"],
     plugins: ["prettier"],
     parserOptions: {
         // Only ESLint 6.2.0 and later support ES2020.

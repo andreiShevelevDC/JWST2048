@@ -29,7 +29,7 @@ module.exports = {
     plugins: [
         new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({
-            gameName: "Double Coconut",
+            gameName: "J.W.S.T. 2048",
             template: "./index.html",
             filename: "index.html",
         }),
