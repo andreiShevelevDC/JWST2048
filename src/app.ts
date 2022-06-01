@@ -3,6 +3,7 @@ import "phaser/plugins/spine/dist/SpinePlugin";
 import BootScene from "./app/scenes/BootScene";
 import MainScene from "./app/scenes/MainScene";
 import PreloadScene from "./app/scenes/PreloadScene";
+import { JWST } from "./app/configs/FieldVisuals";
 
 const config = {
     transparent: false,
@@ -20,7 +21,7 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
         mode: Phaser.Scale.RESIZE,
     },
-    backgroundColor: "#000",
+    backgroundColor: JWST.cBackground,
     plugins: {
         scene: [
             {

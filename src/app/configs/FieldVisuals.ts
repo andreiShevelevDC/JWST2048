@@ -7,11 +7,21 @@ export const JWST = {
     cHexFill: 0xfccc00,
     aHexFill: 1.0,
     wLine: 2,
-    cLine: 0x999,
-    aLine: 1.0,
+    cLine: 0xfff,
+    aLine: 0.4,
 };
 
-export const SIZE = {
-    WIDTH: 0.8,
-    HEIGHT: 0.7,
+export const JWST_LABEL: Phaser.Types.GameObjects.Text.TextStyle = {
+    fontFamily: "Courier",
+    fontStyle: "strong",
+    //backgroundColor: JWST.cBackground,
+    color: "#000",
+    // stroke: ,
+    // strokeThickness: ,
+    testString: "0123456789",
 };
+
+// export const SIZE = {
+//     WIDTH: 0.8,
+//     HEIGHT: 0.7,
+// };

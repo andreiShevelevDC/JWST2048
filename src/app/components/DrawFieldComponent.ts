@@ -1,4 +1,5 @@
 import * as THEME from "../configs/FieldVisuals";
+import { LabelComponent } from "./LabelComponent";
 
 type Point = {
     x: number;
@@ -8,18 +9,41 @@ type Point = {
 export class DrawFieldComponent extends Phaser.GameObjects.Container {
     private readonly isPointyHexes = false; // cause JWST use flat top hexes
     private readonly allHexes: Phaser.GameObjects.Polygon[] = [];
+    private readonly allLabels: LabelComponent[] = [];
+    private readonly partOfGameSizeUsed = 0.9;
 
     public constructor(scene: Phaser.Scene) {
         super(scene);
         const { width, height } = this.scene.scale.gameSize;
-        const fieldSize: number = height > width ? width * 0.8 : height * 0.8;
+        let fieldSize: number = height > width ? width * this.partOfGameSizeUsed : height * this.partOfGameSizeUsed;
+        fieldSize /= Math.sqrt(3);
         const fieldCenter: Point = { x: width / 2, y: height / 2 };
-        this.field(2, fieldSize, fieldCenter);
+        this.field(3, fieldSize / 2, fieldCenter);
+        this.createLabels();
+        this.updateLabels();
+    }
+
+    // should receive array of strings with new labels' values
+    public updateLabels(): void {
+        this.allLabels.forEach((label, index) => {
+            label.setText(index.toString().padStart(2, "0"));
+        });
+    }
+
+    private createLabels(): void {
+        let place: Point;
+        let label: LabelComponent;
+        if (this.allHexes.length !== 0) {
+            this.allHexes.forEach((hex) => {
+                place = hex.getCenter();
+                label = new LabelComponent(this.scene, place.x, place.y, "");
+                this.allLabels.push(label);
+            });
+        }
     }
 
     private field(gameSize: number, radius: number, center: Point): void {
-        const hexRadius = radius / (gameSize + 0.5);
-        //this.allHexes.push(this.hex(center, hexRadius));
+        const hexRadius = radius / gameSize;
         const hexesCenters: Point[] = [];
 
         // first hex is in the center
@@ -30,14 +54,14 @@ export class DrawFieldComponent extends Phaser.GameObjects.Container {
 
         // first circle (gameSize == 2, 6 hexes)
         // !(not use pointy hexes) here to get centers at the right position
-        hexesCenters.push(...this.getHexVertices(center, distance2Ring));
+        hexesCenters.push(...this.getHexVertices(center, distance2Ring, true));
 
         // array of not corner (interim) hexes
         let newHexesCenters: Point[] = [];
         let interimHexesCenters: Point[] = [];
         for (let s = 2; s < gameSize; s++) {
             distance2Ring += hexRadius * Math.sqrt(3);
-            newHexesCenters = this.getHexVertices(center, distance2Ring);
+            newHexesCenters = this.getHexVertices(center, distance2Ring, true);
             interimHexesCenters = this.getInterimHexCenters(newHexesCenters, s);
 
             //starting to insert interim hexes from the second position
@@ -103,10 +127,10 @@ export class DrawFieldComponent extends Phaser.GameObjects.Container {
 
     // returns hex vertices
     // also used to get corner's hexes centers
-    private getHexVertices(center: Point, radius: number): Point[] {
+    private getHexVertices(center: Point, radius: number, isHexCenters = false): Point[] {
         const vertices: Point[] = [];
         let angle: number;
-        if (this.isPointyHexes) angle = 180 + 30; // in degrees
+        if (this.isPointyHexes || isHexCenters) angle = 180 + 30; // in degrees
         else angle = 180;
         for (let i = 0; i < 6; i++) {
             angle += 60;
