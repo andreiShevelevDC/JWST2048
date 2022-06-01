@@ -1,21 +1,94 @@
 import * as THEME from "../configs/FieldVisuals";
 
+type Point = {
+    x: number;
+    y: number;
+};
+
 export class DrawFieldComponent extends Phaser.GameObjects.Container {
-    private readonly pointyHexes = false; // cause JWST use flat top hexes
+    private readonly isPointyHexes = false; // cause JWST use flat top hexes
     private readonly allHexes: Phaser.GameObjects.Polygon[] = [];
 
     public constructor(scene: Phaser.Scene) {
         super(scene);
-        this.field();
-    }
-
-    private field(): void {
         const { width, height } = this.scene.scale.gameSize;
-        this.allHexes.push(this.hex({ x: width / 2, y: height / 2 }, 100));
+        const fieldSize: number = height > width ? width * 0.8 : height * 0.8;
+        const fieldCenter: Point = { x: width / 2, y: height / 2 };
+        this.field(2, fieldSize, fieldCenter);
     }
 
-    private hex(center: Phaser.Types.GameObjects.Graphics.Options, radius: number): Phaser.GameObjects.Polygon {
-        const vertices: Phaser.Types.GameObjects.Graphics.Options[] = this.getHexVertices(radius);
+    private field(gameSize: number, radius: number, center: Point): void {
+        const hexRadius = radius / (gameSize + 0.5);
+        //this.allHexes.push(this.hex(center, hexRadius));
+        const hexesCenters: Point[] = [];
+
+        // first hex is in the center
+        hexesCenters.push(center);
+
+        // distance to the centers of the corner ring hexes
+        let distance2Ring: number = hexRadius * Math.sqrt(3);
+
+        // first circle (gameSize == 2, 6 hexes)
+        // !(not use pointy hexes) here to get centers at the right position
+        hexesCenters.push(...this.getHexVertices(center, distance2Ring));
+
+        // array of not corner (interim) hexes
+        let newHexesCenters: Point[] = [];
+        let interimHexesCenters: Point[] = [];
+        for (let s = 2; s < gameSize; s++) {
+            distance2Ring += hexRadius * Math.sqrt(3);
+            newHexesCenters = this.getHexVertices(center, distance2Ring);
+            interimHexesCenters = this.getInterimHexCenters(newHexesCenters, s);
+
+            //starting to insert interim hexes from the second position
+            let i = 1;
+            let iHex: Point | undefined;
+            while (interimHexesCenters.length > 0) {
+                for (let j = 0; j < s - 1; j++) {
+                    iHex = interimHexesCenters.shift();
+                    if (iHex) newHexesCenters.splice(i, 0, iHex);
+                    i++;
+                }
+                i++; //skipping next corner hex
+            }
+            hexesCenters.push(...newHexesCenters);
+        }
+
+        // draw all the hexes
+        hexesCenters.forEach((hexCenter) => {
+            this.allHexes.push(this.hex(hexCenter, hexRadius));
+        });
+    }
+
+    private getInterimHexCenters(cornerHexesCenters: Point[], circleNum: number): Point[] {
+        const interimHexesCenters: Point[] = [];
+        let nextCornerHexCenter: Point;
+        const shift: Point = { x: 0, y: 0 }; // shift between interim hexes' centers
+
+        for (let i = 0; i < cornerHexesCenters.length; i++) {
+            if (cornerHexesCenters[i + 1] !== undefined) nextCornerHexCenter = cornerHexesCenters[i + 1];
+            else nextCornerHexCenter = cornerHexesCenters[0];
+
+            shift.x = nextCornerHexCenter.x - cornerHexesCenters[i].x;
+            shift.x /= circleNum;
+
+            shift.y = nextCornerHexCenter.y - cornerHexesCenters[i].y;
+            shift.y /= circleNum;
+
+            for (let j = 1; j < circleNum; j++) {
+                interimHexesCenters.push({
+                    x: cornerHexesCenters[i].x + shift.x * j,
+                    y: cornerHexesCenters[i].y + shift.y * j,
+                });
+            }
+
+            //interimHexesCenters.push(...currentHexesCenters);
+        }
+        return interimHexesCenters;
+    }
+
+    private hex(center: Point, radius: number): Phaser.GameObjects.Polygon {
+        const vertices: Point[] = this.getHexVertices({ x: 0, y: 0 }, radius);
         const hex: Phaser.GameObjects.Polygon = this.scene.add.polygon(
             center.x,
             center.y,
@@ -30,16 +103,16 @@ export class DrawFieldComponent extends Phaser.GameObjects.Container {
 
     // returns hex vertices
     // also used to get corner's hexes centers
-    private getHexVertices(radius: number): Phaser.Types.GameObjects.Graphics.Options[] {
-        const vertices: Phaser.Types.GameObjects.Graphics.Options[] = [];
+    private getHexVertices(center: Point, radius: number): Point[] {
+        const vertices: Point[] = [];
         let angle: number;
-        if (this.pointyHexes) angle = 180 + 30; // in degrees
+        if (this.isPointyHexes) angle = 180 + 30; // in degrees
         else angle = 180;
         for (let i = 0; i < 6; i++) {
             angle += 60;
             vertices.push({
-                x: radius * Math.cos((angle * Math.PI) / 180),
-                y: radius * Math.sin((angle * Math.PI) / 180),
+                x: center.x + radius * Math.cos((angle * Math.PI) / 180),
+                y: center.y + radius * Math.sin((angle * Math.PI) / 180),
             });
         }
         return vertices;

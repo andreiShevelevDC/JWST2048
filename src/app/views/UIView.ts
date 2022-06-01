@@ -5,7 +5,7 @@ export class UIView extends Phaser.GameObjects.Container {
 
     public constructor(public scene) {
         super(scene);
-        this.init();
+        //this.init();
     }
 
     public updateCounter(): void {
