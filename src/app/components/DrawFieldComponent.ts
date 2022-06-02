@@ -27,18 +27,13 @@ export class DrawFieldComponent extends Phaser.GameObjects.Container {
     public updateLabels(): void {
         this.allLabels.forEach((label, index) => {
             label.setText(index.toString().padStart(2, "0"));
+            //(label as Phaser.GameObjects.Text).setFontSize(36);
         });
     }
 
     private createLabels(): void {
-        let place: Point;
-        let label: LabelComponent;
         if (this.allHexes.length !== 0) {
-            this.allHexes.forEach((hex) => {
-                place = hex.getCenter();
-                label = new LabelComponent(this.scene, place.x, place.y, "");
-                this.allLabels.push(label);
-            });
+            this.allHexes.forEach((hex) => this.allLabels.push(new LabelComponent(this.scene, hex.x, hex.y, "")));
         }
     }
 
@@ -77,11 +72,7 @@ export class DrawFieldComponent extends Phaser.GameObjects.Container {
             }
             hexesCenters.push(...newHexesCenters);
         }
-
-        // draw all the hexes
-        hexesCenters.forEach((hexCenter) => {
-            this.allHexes.push(this.hex(hexCenter, hexRadius));
-        });
+        hexesCenters.forEach((hexCenter) => this.allHexes.push(this.hex(hexCenter, hexRadius)));
     }
 
     private getInterimHexCenters(cornerHexesCenters: Point[], circleNum: number): Point[] {
@@ -105,8 +96,6 @@ export class DrawFieldComponent extends Phaser.GameObjects.Container {
                     y: cornerHexesCenters[i].y + shift.y * j,
                 });
             }
-
-            //interimHexesCenters.push(...currentHexesCenters);
         }
         return interimHexesCenters;
     }

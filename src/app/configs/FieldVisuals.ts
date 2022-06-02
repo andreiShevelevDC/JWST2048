@@ -7,12 +7,13 @@ export const JWST = {
     cHexFill: 0xfccc00,
     aHexFill: 1.0,
     wLine: 2,
-    cLine: 0xfff,
+    cLine: 0x666666,
     aLine: 0.4,
 };
 
 export const JWST_LABEL: Phaser.Types.GameObjects.Text.TextStyle = {
-    fontFamily: "Courier",
+    fontFamily: "Georgia",
+    fontSize: "28",
     fontStyle: "strong",
     //backgroundColor: JWST.cBackground,
     color: "#000",

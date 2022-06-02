@@ -1,15 +1,10 @@
 import { JWST_LABEL } from "../configs/FieldVisuals";
 
 export class LabelComponent extends Phaser.GameObjects.Text {
-    public constructor(
-        scene: Phaser.Scene,
-        x = 0,
-        y = 0,
-        text: string,
-        //style: Phaser.Types.GameObjects.Text.TextStyle,
-    ) {
+    public constructor(scene: Phaser.Scene, x: number, y: number, text: string) {
         super(scene, x, y, text, JWST_LABEL);
-        this.setOrigin(0.5, 0.5); //.setPosition(x, y);
+        this.setOrigin(0.5, 0.5);
+        //this.setFontSize(50);
         scene.add.existing(this);
     }
 
