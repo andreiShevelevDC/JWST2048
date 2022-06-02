@@ -3,7 +3,7 @@ import "phaser/plugins/spine/dist/SpinePlugin";
 import BootScene from "./app/scenes/BootScene";
 import MainScene from "./app/scenes/MainScene";
 import PreloadScene from "./app/scenes/PreloadScene";
-import { JWST } from "./app/configs/FieldVisuals";
+import { JWST } from "./app/configs/Field";
 
 const config = {
     transparent: false,

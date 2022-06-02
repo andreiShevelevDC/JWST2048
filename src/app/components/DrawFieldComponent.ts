@@ -1,4 +1,4 @@
-import * as THEME from "../configs/FieldVisuals";
+import * as THEME from "../configs/Field";
 import { LabelComponent } from "./LabelComponent";
 
 type Point = {
@@ -7,56 +7,52 @@ type Point = {
 };
 
 export class DrawFieldComponent extends Phaser.GameObjects.Container {
+    private readonly fieldSize = 3;
     private readonly isPointyHexes = false; // cause JWST use flat top hexes
-    private readonly allHexes: Phaser.GameObjects.Polygon[] = [];
+    private readonly partOfShortSizeUsed = 0.9;
+
+    private allHexes: Phaser.GameObjects.Polygon[] = [];
     private readonly allLabels: LabelComponent[] = [];
-    private readonly partOfGameSizeUsed = 0.9;
 
     public constructor(scene: Phaser.Scene) {
         super(scene);
-        const { width, height } = this.scene.scale.gameSize;
-        let fieldSize: number = height > width ? width * this.partOfGameSizeUsed : height * this.partOfGameSizeUsed;
-        fieldSize /= Math.sqrt(3);
-        const fieldCenter: Point = { x: width / 2, y: height / 2 };
-        this.field(3, fieldSize / 2, fieldCenter);
-        this.createLabels();
-        this.updateLabels();
+        this.draw();
+        this.updateLabelsData();
     }
 
     // should receive array of strings with new labels' values
-    public updateLabels(): void {
-        this.allLabels.forEach((label, index) => {
-            label.setText(index.toString().padStart(2, "0"));
-            //(label as Phaser.GameObjects.Text).setFontSize(36);
-        });
+    public updateLabelsData(): void {
+        this.allLabels.forEach((label, index) => label.setText(index.toString().padStart(2, "0")));
     }
 
-    private createLabels(): void {
+    public draw(): void {
         if (this.allHexes.length !== 0) {
-            this.allHexes.forEach((hex) => this.allLabels.push(new LabelComponent(this.scene, hex.x, hex.y, "")));
+            this.allHexes.forEach((hex) => hex.destroy());
+            this.allHexes = [];
         }
-    }
 
-    private field(gameSize: number, radius: number, center: Point): void {
-        const hexRadius = radius / gameSize;
+        const { width, height } = this.scene.scale.gameSize;
+        let radius: number = height > width ? width : height;
+        radius = (radius / Math.sqrt(3) / 2) * this.partOfShortSizeUsed;
+        const center: Point = { x: width / 2, y: height / 2 };
+        const hexRadius = radius / this.fieldSize;
+        let distance2CornerHex: number = hexRadius * Math.sqrt(3);
+
         const hexesCenters: Point[] = [];
 
         // first hex is in the center
         hexesCenters.push(center);
 
-        // distance to the centers of the corner ring hexes
-        let distance2Ring: number = hexRadius * Math.sqrt(3);
-
-        // first circle (gameSize == 2, 6 hexes)
+        // first circle (fieldSize == 2, 6 hexes)
         // !(not use pointy hexes) here to get centers at the right position
-        hexesCenters.push(...this.getHexVertices(center, distance2Ring, true));
+        hexesCenters.push(...this.getHexVertices(center, distance2CornerHex, true));
 
         // array of not corner (interim) hexes
         let newHexesCenters: Point[] = [];
         let interimHexesCenters: Point[] = [];
-        for (let s = 2; s < gameSize; s++) {
-            distance2Ring += hexRadius * Math.sqrt(3);
-            newHexesCenters = this.getHexVertices(center, distance2Ring, true);
+        for (let s = 2; s < this.fieldSize; s++) {
+            distance2CornerHex += hexRadius * Math.sqrt(3);
+            newHexesCenters = this.getHexVertices(center, distance2CornerHex, true);
             interimHexesCenters = this.getInterimHexCenters(newHexesCenters, s);
 
             //starting to insert interim hexes from the second position
@@ -73,6 +69,20 @@ export class DrawFieldComponent extends Phaser.GameObjects.Container {
             hexesCenters.push(...newHexesCenters);
         }
         hexesCenters.forEach((hexCenter) => this.allHexes.push(this.hex(hexCenter, hexRadius)));
+
+        if (this.allLabels.length === 0) this.createLabels();
+        this.updateLabels();
+    }
+
+    // TODO: change font size according to hex size
+    private updateLabels(): void {
+        this.allHexes.forEach(
+            (hex, i) => this.allLabels[i].setPosition(hex.x, hex.y), //.setFontSize(36)
+        );
+    }
+
+    private createLabels(): void {
+        this.allHexes.forEach(() => this.allLabels.push(new LabelComponent(this.scene, 0, 0, "")));
     }
 
     private getInterimHexCenters(cornerHexesCenters: Point[], circleNum: number): Point[] {
