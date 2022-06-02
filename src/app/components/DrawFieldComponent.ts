@@ -1,4 +1,5 @@
 import * as THEME from "../configs/Field";
+import * as GAME from "../configs/Game";
 import { LabelComponent } from "./LabelComponent";
 
 type Point = {
@@ -7,7 +8,6 @@ type Point = {
 };
 
 export class DrawFieldComponent extends Phaser.GameObjects.Container {
-    private readonly fieldSize = 3;
     private readonly isPointyHexes = false; // cause JWST use flat top hexes
     private readonly partOfShortSizeUsed = 0.9;
 
@@ -35,7 +35,7 @@ export class DrawFieldComponent extends Phaser.GameObjects.Container {
         let radius: number = height > width ? width : height;
         radius = (radius / Math.sqrt(3) / 2) * this.partOfShortSizeUsed;
         const center: Point = { x: width / 2, y: height / 2 };
-        const hexRadius = radius / this.fieldSize;
+        const hexRadius = radius / GAME.SIZE;
         let distance2CornerHex: number = hexRadius * Math.sqrt(3);
 
         const hexesCenters: Point[] = [];
@@ -50,7 +50,7 @@ export class DrawFieldComponent extends Phaser.GameObjects.Container {
         // array of not corner (interim) hexes
         let newHexesCenters: Point[] = [];
         let interimHexesCenters: Point[] = [];
-        for (let s = 2; s < this.fieldSize; s++) {
+        for (let s = 2; s < GAME.SIZE; s++) {
             distance2CornerHex += hexRadius * Math.sqrt(3);
             newHexesCenters = this.getHexVertices(center, distance2CornerHex, true);
             interimHexesCenters = this.getInterimHexCenters(newHexesCenters, s);
