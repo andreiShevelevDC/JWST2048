@@ -9,6 +9,8 @@ export enum STATE {
     PLAYING,
 }
 
+export const NEW_TILES = [BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE ** 2, BASE_TILE ** 2];
+
 // direction vectors
 export const DIRECTION = {
     Q: [-1, 1],

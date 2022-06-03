@@ -7,7 +7,7 @@ type Point = {
     y: number;
 };
 
-export default class DrawFieldComponent extends Phaser.GameObjects.Container {
+export default class DrawField extends Phaser.GameObjects.Container {
     private readonly isPointyHexes = false; // cause JWST use flat top hexes
     private readonly partOfShortSizeUsed = 0.9;
 
@@ -17,12 +17,15 @@ export default class DrawFieldComponent extends Phaser.GameObjects.Container {
     public constructor(scene: Phaser.Scene) {
         super(scene);
         this.draw();
-        this.updateLabelsData();
+        //this.updateLabelsData();
     }
 
     // should receive array of strings with new labels' values
-    public updateLabelsData(): void {
-        this.allLabels.forEach((label, index) => label.setText(index.toString().padStart(2, "0")));
+    public updateLabelsData(values: number[]): void {
+        //this.allLabels.forEach((label, index) => label.setText(index.toString().padStart(2, "0")));
+        this.allLabels.forEach((label, i) => {
+            if (values[i]) label.setText(values[i].toString());
+        });
     }
 
     public draw(): void {

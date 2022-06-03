@@ -6,9 +6,10 @@ export default class KeyboardHandler {
 
     //public constructor() {}
 
-    public keyboardHandler(event: KeyboardEvent): (number | number[])[] {
+    public keyboardHandler(event: KeyboardEvent): { key: number; dir: number[] | null } {
         const currentTimestamp = Date.now();
-        if (currentTimestamp - this.prevKeypressTimestamp < GAME.MOVE_KEYPRESS_DELAY) return [GAME.KEY.UNASSIGNED];
+        if (currentTimestamp - this.prevKeypressTimestamp < GAME.MOVE_KEYPRESS_DELAY)
+            return { key: GAME.KEY.UNASSIGNED, dir: null };
 
         //console.log(currentTimestamp - this.prevKeypressTimestamp);
         this.prevKeypressTimestamp = currentTimestamp;
@@ -17,31 +18,31 @@ export default class KeyboardHandler {
         switch (this.keyCode) {
             case GAME.MOVE_KEYS[0]:
             case GAME.MOVE_KEYS[1]:
-                return [GAME.KEY.MOVE, GAME.DIRECTION.Q];
+                return { key: GAME.KEY.MOVE, dir: GAME.DIRECTION.Q };
 
             case GAME.MOVE_KEYS[2]:
             case GAME.MOVE_KEYS[3]:
-                return [GAME.KEY.MOVE, GAME.DIRECTION.W];
+                return { key: GAME.KEY.MOVE, dir: GAME.DIRECTION.W };
 
             case GAME.MOVE_KEYS[4]:
             case GAME.MOVE_KEYS[5]:
-                return [GAME.KEY.MOVE, GAME.DIRECTION.E];
+                return { key: GAME.KEY.MOVE, dir: GAME.DIRECTION.E };
 
             case GAME.MOVE_KEYS[6]:
             case GAME.MOVE_KEYS[7]:
-                return [GAME.KEY.MOVE, GAME.DIRECTION.A];
+                return { key: GAME.KEY.MOVE, dir: GAME.DIRECTION.A };
 
             case GAME.MOVE_KEYS[8]:
             case GAME.MOVE_KEYS[9]:
-                return [GAME.KEY.MOVE, GAME.DIRECTION.S];
+                return { key: GAME.KEY.MOVE, dir: GAME.DIRECTION.S };
 
             case GAME.MOVE_KEYS[10]:
             case GAME.MOVE_KEYS[11]:
-                return [GAME.KEY.MOVE, GAME.DIRECTION.D];
+                return { key: GAME.KEY.MOVE, dir: GAME.DIRECTION.D };
 
             default:
                 //console.log("Unhandled key pressed: ", this.keyCode);
-                return [GAME.KEY.UNASSIGNED];
+                return { key: GAME.KEY.UNASSIGNED, dir: null };
         }
     }
 

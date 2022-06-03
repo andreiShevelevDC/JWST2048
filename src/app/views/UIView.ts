@@ -1,5 +1,5 @@
 //import { CounterComponent } from "../components/CounterComponent";
-import KeyboardHandler from "../components/KeyboardHandlerComponent";
+import KeyboardHandler from "../components/KeyboardHandler";
 
 export class UIView extends Phaser.GameObjects.Container {
     public keyboard: KeyboardHandler;

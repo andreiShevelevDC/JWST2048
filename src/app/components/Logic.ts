@@ -13,7 +13,7 @@ type Cell = {
     merged: boolean; // become true if tile was merged this turn
 };
 
-export class LogicComponent {
+export default class Logic {
     private readonly fieldRings = [
         //[0,0],  // center cell, created in GameLogic.createCircularField()
         [0, 1, 1, 0, 1, -1, 0, -1, -1, 0, -1, 1], // ring 2 (+6 cells)
@@ -29,7 +29,13 @@ export class LogicComponent {
         this.createCircularField();
     }
 
-    public getField = (): Cell[] => this.field;
+    public getFieldValues(): number[] {
+        const fieldValues: number[] = [];
+        this.field.forEach((cell) => {
+            fieldValues.push(cell.value);
+        });
+        return fieldValues;
+    }
 
     // Adds new tiles to the field,
     // tilesNum - number of cells to add values to (create new "tiles")

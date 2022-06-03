@@ -1,9 +1,9 @@
-import DrawFieldComponent from "../components/DrawFieldComponent";
+import DrawField from "../components/DrawField";
 
 export class GameView extends Phaser.GameObjects.Container {
     //private bkg: Phaser.GameObjects.Sprite;
     //private racoon: SpineGameObject;
-    private field: DrawFieldComponent;
+    public field: DrawField;
 
     public constructor(public scene) {
         super(scene);
@@ -21,7 +21,7 @@ export class GameView extends Phaser.GameObjects.Container {
     // }
 
     private initField(): void {
-        this.field = new DrawFieldComponent(this.scene);
+        this.field = new DrawField(this.scene);
         this.scene.scale.on("resize", () => this.field.draw());
     }
 

@@ -4,27 +4,31 @@ import { ForegroundView } from "../views/ForegroundView";
 import { GameView } from "../views/GameView";
 import { UIView } from "../views/UIView";
 import * as GAME from "../configs/Game";
+import Logic from "../components/Logic";
 
 export default class MainScene extends Phaser.Scene {
     private gameView: GameView;
     private uiView: UIView;
     private foregroundView: ForegroundView;
 
+    private logic: Logic;
+    private fieldValues: number[];
     private gameState = GAME.STATE.PAUSE;
-    private moveCounter = 0;
+    private moveCounter: number;
 
     public constructor() {
         super({ key: SceneNames.Main });
         this.init();
     }
 
-    public update(): void {}
+    //public update(): void {}
 
     private init(): void {
         this.initGameView();
         this.initUIView();
         this.initForegroundView();
         //this.initStatJS();
+        this.makeNewGame();
         this.handleInput();
     }
 
@@ -46,6 +50,22 @@ export default class MainScene extends Phaser.Scene {
         this.add.existing(this.foregroundView);
     }
 
+    private makeNewGame(): void {
+        this.moveCounter = 0;
+        this.gameState = GAME.STATE.PLAYING;
+        this.startGame();
+    }
+
+    private startGame(): void {
+        this.logic = new Logic();
+
+        this.logic.addNewTiles(1, GAME.NEW_TILES);
+
+        this.fieldValues = this.logic.getFieldValues();
+
+        this.gameView.field.updateLabelsData(this.fieldValues);
+    }
+
     private handleInput(): void {
         document.addEventListener(GAME.KEYBOARD_EVENT, (event) => {
             const action = this.uiView.keyboard.keyboardHandler(event);
@@ -55,13 +75,13 @@ export default class MainScene extends Phaser.Scene {
                     break;
                 case GAME.KEY.MOVE:
                     if (this.gameState === GAME.STATE.PLAYING) {
-                        //check if move changed field's state and skip if not
-                        //console.log(field);
-                        logic.makeMove(action[1]);
+                        //check if move changed field state and skip if not
+                        //console.log(fieldValues);
+                        this.logic.makeMove(action[1]);
                         this.moveCounter++;
                         if (this.canContinueGame()) {
-                            logic.newTiles(1, [2, 2, 2, 2, 4]);
-                            DRAW.updateLabels(field);
+                            this.logic.addNewTiles(1, GAME.NEW_TILES);
+                            this.gameView.field.updateLabelsData(this.fieldValues);
                         } else {
                             this.gameState = GAME.STATE.PAUSE;
                             finishGame();
