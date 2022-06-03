@@ -84,6 +84,15 @@ export default class Logic {
         return false;
     }
 
+    // returns the number of empty tiles
+    public getEmptyCellsNum(): number {
+        let num = 0;
+        this.field.forEach((cell) => {
+            if (cell.value === GAME.CELL_EMPTY) num++;
+        });
+        return num;
+    }
+
     // create circular field of size <gameSize> without gaps
     private createCircularField(): void {
         this.field[0] = {
@@ -111,15 +120,6 @@ export default class Logic {
                 merged: false,
             });
         }
-    }
-
-    // returns the number of empty tiles
-    private getEmptyCellsNum(): number {
-        let num = 0;
-        this.field.forEach((cell) => {
-            if (cell.value === GAME.CELL_EMPTY) num++;
-        });
-        return num;
     }
 
     // returns random integer, where 0 <= return < max

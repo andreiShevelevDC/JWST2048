@@ -11,6 +11,9 @@ export enum STATE {
 
 export const NEW_TILES = [BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE ** 2, BASE_TILE ** 2];
 
+// a value to make to win the game
+export const GOAL = BASE_TILE ** 10;
+
 // direction vectors
 export const DIRECTION = {
     Q: [-1, 1],

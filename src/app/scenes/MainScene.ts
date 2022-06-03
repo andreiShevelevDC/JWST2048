@@ -84,7 +84,7 @@ export default class MainScene extends Phaser.Scene {
                             this.gameView.field.updateLabelsData(this.fieldValues);
                         } else {
                             this.gameState = GAME.STATE.PAUSE;
-                            finishGame();
+                            this.finishGame();
                         }
                     } else {
                         console.log(" START A NEW GAME");
@@ -96,6 +96,21 @@ export default class MainScene extends Phaser.Scene {
             }
         });
     }
+
+    private finishGame(): void {
+        console.log("  ***  GAME FINISHED!  ***  ");
+        console.log(` ${this.moveCounter} moves made.`);
+        if (this.logic.checkGoal(GAME.GOAL)) {
+            console.log(" Game is WON: The goal has been achieved.");
+            return;
+        }
+        console.log(` Game is lost: no empty tiles left (${this.logic.getEmptyCellsNum()}).`);
+
+        // Ask for a new game
+        //makeNewGame(newGameSizeIndex);
+    }
+
+    private canContinueGame = (): boolean => !(this.logic.checkGoal(GAME.GOAL) || this.logic.getEmptyCellsNum() === 0);
 
     // private initStatJS(): void {
     //     const stats = new Stats();
