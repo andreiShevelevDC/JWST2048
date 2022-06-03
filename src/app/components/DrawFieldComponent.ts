@@ -1,13 +1,13 @@
 import * as THEME from "../configs/Field";
 import * as GAME from "../configs/Game";
-import { LabelComponent } from "./LabelComponent";
+import LabelComponent from "./LabelComponent";
 
 type Point = {
     x: number;
     y: number;
 };
 
-export class DrawFieldComponent extends Phaser.GameObjects.Container {
+export default class DrawFieldComponent extends Phaser.GameObjects.Container {
     private readonly isPointyHexes = false; // cause JWST use flat top hexes
     private readonly partOfShortSizeUsed = 0.9;
 

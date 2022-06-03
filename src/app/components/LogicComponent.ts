@@ -2,6 +2,7 @@
 // EMPTY CELL: CELL has value !== CELL_EMPTY
 // DISABLED CELL: CELL that has value === CELL_DISABLED and can't be changed
 // TILE: any not EMPTY or DISABLED CELL
+
 import * as GAME from "../configs/Game";
 
 type Cell = {

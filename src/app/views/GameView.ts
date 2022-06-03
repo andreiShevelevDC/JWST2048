@@ -1,4 +1,4 @@
-import { DrawFieldComponent } from "../components/DrawFieldComponent";
+import DrawFieldComponent from "../components/DrawFieldComponent";
 
 export class GameView extends Phaser.GameObjects.Container {
     //private bkg: Phaser.GameObjects.Sprite;

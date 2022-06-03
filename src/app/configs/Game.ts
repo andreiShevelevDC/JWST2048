@@ -1,9 +1,13 @@
-export const SIZE = 3;
+export const SIZE = 3; // central hex + 2 rings = 19 cells
 
 export const CELL_EMPTY = 0;
 export const CELL_DISABLED = -1; // for field configurations with gaps or out of borders
-
 export const BASE_TILE = 2;
+
+export enum STATE {
+    PAUSE,
+    PLAYING,
+}
 
 // direction vectors
 export const DIRECTION = {
@@ -14,3 +18,26 @@ export const DIRECTION = {
     S: [0, -1],
     D: [1, -1],
 };
+
+export const MOVE_KEYPRESS_DELAY = 200; // ms
+export enum KEY {
+    UNASSIGNED,
+    MOVE,
+    UI,
+}
+export const KEYBOARD_EVENT = "keyup";
+// key codes that make move
+export const MOVE_KEYS = [
+    "KeyQ",
+    "Numpad7",
+    "KeyW",
+    "Numpad8",
+    "KeyE",
+    "Numpad9",
+    "KeyA",
+    "Numpad4",
+    "KeyS",
+    "Numpad5",
+    "KeyD",
+    "Numpad6",
+];

@@ -1,24 +1,27 @@
-import { CounterComponent } from "../components/CounterComponent";
+//import { CounterComponent } from "../components/CounterComponent";
+import KeyboardHandler from "../components/KeyboardHandlerComponent";
 
 export class UIView extends Phaser.GameObjects.Container {
-    private counter: CounterComponent;
+    public keyboard: KeyboardHandler;
+    //private counter: CounterComponent;
 
     public constructor(public scene) {
         super(scene);
-        //this.init();
+        this.init();
     }
 
-    public updateCounter(): void {
-        this.counter.updateRounds();
-    }
+    // public updateCounter(): void {
+    //     this.counter.updateRounds();
+    // }
 
     private init(): void {
-        this.initCounter();
+        //this.initCounter();
+        this.keyboard = new KeyboardHandler();
     }
 
-    private initCounter(): void {
-        this.counter = new CounterComponent(this.scene);
-        this.counter.setPosition(300, 100);
-        this.add(this.counter);
-    }
+    // private initCounter(): void {
+    //     this.counter = new CounterComponent(this.scene);
+    //     this.counter.setPosition(300, 100);
+    //     this.add(this.counter);
+    // }
 }
