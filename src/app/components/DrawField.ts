@@ -24,7 +24,10 @@ export default class DrawField extends Phaser.GameObjects.Container {
     public updateLabelsData(values: number[]): void {
         //this.allLabels.forEach((label, index) => label.setText(index.toString().padStart(2, "0")));
         this.allLabels.forEach((label, i) => {
-            if (values[i]) label.setText(values[i].toString());
+            if (values[i] !== null) {
+                if (values[i] === 0) label.setText("");
+                else label.setText(values[i].toString());
+            }
         });
     }
 

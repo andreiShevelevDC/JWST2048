@@ -14,7 +14,6 @@ export default class MainScene extends Phaser.Scene {
     //private foregroundView: ForegroundView;
 
     private logic: Logic;
-    private fieldValues: number[];
     private gameState = GAME.STATE.PAUSE;
     private moveCounter: number;
 
@@ -29,7 +28,7 @@ export default class MainScene extends Phaser.Scene {
         this.initGameView();
         this.initUIView();
         //this.initForegroundView();
-        if (process.env.NODE_ENV !== "production") this.initStatJS();
+        //if (process.env.NODE_ENV !== "production") this.initStatJS();
         this.makeNewGame();
         this.handleInput();
     }
@@ -63,30 +62,26 @@ export default class MainScene extends Phaser.Scene {
 
     private startGame(): void {
         this.logic = new Logic();
-
         this.logic.addNewTiles(1, GAME.NEW_TILES);
-
-        this.fieldValues = this.logic.getFieldValues();
-
-        this.gameView.field.updateLabelsData(this.fieldValues);
+        this.gameView.field.updateLabelsData(this.logic.getFieldValues());
     }
 
     private handleInput(): void {
         document.addEventListener(GAME.KEYBOARD_EVENT, (event) => {
             const action = this.uiView.keyboard.keyboardHandler(event);
-            switch (action[0]) {
+            switch (action.key) {
                 case GAME.KEY.UNASSIGNED:
                     //TODO: show hotkeys help popup
                     break;
                 case GAME.KEY.MOVE:
-                    if (this.gameState === GAME.STATE.PLAYING) {
+                    if (this.gameState === GAME.STATE.PLAYING && action.dir !== null) {
                         //check if move changed field state and skip if not
                         //console.log(fieldValues);
-                        this.logic.makeMove(action[1]);
+                        this.logic.makeMove(action.dir);
                         this.moveCounter++;
                         if (this.canContinueGame()) {
                             this.logic.addNewTiles(1, GAME.NEW_TILES);
-                            this.gameView.field.updateLabelsData(this.fieldValues);
+                            this.gameView.field.updateLabelsData(this.logic.getFieldValues());
                         } else {
                             this.gameState = GAME.STATE.PAUSE;
                             this.finishGame();
