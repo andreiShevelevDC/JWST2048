@@ -1,6 +1,8 @@
-//import * as Stats from "stats.js";
+//import { IocContext } from "power-di";
+import * as Stats from "stats.js";
 import { SceneNames } from "../enums/Scenes";
-import { ForegroundView } from "../views/ForegroundView";
+//import { PopupService } from "../services/PopupService";
+//import { ForegroundView } from "../views/ForegroundView";
 import { GameView } from "../views/GameView";
 import { UIView } from "../views/UIView";
 import * as GAME from "../configs/Game";
@@ -9,7 +11,7 @@ import Logic from "../components/Logic";
 export default class MainScene extends Phaser.Scene {
     private gameView: GameView;
     private uiView: UIView;
-    private foregroundView: ForegroundView;
+    //private foregroundView: ForegroundView;
 
     private logic: Logic;
     private fieldValues: number[];
@@ -23,10 +25,11 @@ export default class MainScene extends Phaser.Scene {
     //public update(): void {}
 
     private init(): void {
+        //this.initServices();
         this.initGameView();
         this.initUIView();
-        this.initForegroundView();
-        //this.initStatJS();
+        //this.initForegroundView();
+        if (process.env.NODE_ENV !== "production") this.initStatJS();
         this.makeNewGame();
         this.handleInput();
     }
@@ -44,10 +47,13 @@ export default class MainScene extends Phaser.Scene {
         this.add.existing(this.uiView);
     }
 
-    private initForegroundView(): void {
-        this.foregroundView = new ForegroundView(this);
-        this.add.existing(this.foregroundView);
-    }
+    // private initForegroundView(): void {
+    //     this.foregroundView = new ForegroundView(this);
+    //     this.foregroundView.on("counterPopupClosed", () => {
+    //         this.gameView.runRacoon();
+    //     });
+    //     this.add.existing(this.foregroundView);
+    // }
 
     private makeNewGame(): void {
         this.moveCounter = 0;
@@ -111,15 +117,20 @@ export default class MainScene extends Phaser.Scene {
 
     private canContinueGame = (): boolean => !(this.logic.checkGoal(GAME.GOAL) || this.logic.getEmptyCellsNum() === 0);
 
-    // private initStatJS(): void {
-    //     const stats = new Stats();
-    //     stats.showPanel(2);
-    //     const update = (): void => {
-    //         stats.begin();
-    //         stats.end();
-    //         requestAnimationFrame(update);
-    //     };
-    //     update();
-    //     document.body.appendChild(stats.dom);
+    // private initServices(): void {
+    //     const popupService = IocContext.DefaultInstance.get(PopupService);
+    //     popupService.initialize();
     // }
+
+    private initStatJS(): void {
+        const stats = new Stats();
+        stats.showPanel(0);
+        const update = (): void => {
+            stats.begin();
+            stats.end();
+            requestAnimationFrame(update);
+        };
+        update();
+        document.body.appendChild(stats.dom);
+    }
 }
