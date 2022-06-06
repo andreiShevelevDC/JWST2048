@@ -18,7 +18,6 @@ export default class MainScene extends Phaser.Scene {
 
     public constructor() {
         super({ key: SceneNames.Main });
-        this.init();
     }
 
     //public update(): void {}
