@@ -5,7 +5,6 @@ const { exec } = require("child_process");
 
 const srcPath = join(__dirname, "../src");
 const assetsPath = join(srcPath, "assets");
-const dir = ["sd", "md", "hd"];
 
 const paths = {
     images: {
@@ -60,13 +59,17 @@ function getFileNameFromPath(path) {
     return path.slice(path.lastIndexOf("/") + 1, path.lastIndexOf("."));
 }
 
+function getFileNameWithExtension(path) {
+    return path.slice(path.lastIndexOf("/") + 1, path.length);
+}
+
 function getFileExtensionFromPath(path) {
     return path.slice(path.lastIndexOf(".") + 1, path.length);
 }
 
-function findFileWithExtension(array, extension) {
-    for (const el of array) {
-        if (getFileExtensionFromPath(el) === extension) return el;
+function findFileWithExtension(files, extension) {
+    for (const f of files) {
+        if (getFileExtensionFromPath(f) === extension) return f;
     }
     return null;
 }
@@ -79,16 +82,13 @@ async function generateSpriteSheet(data, name) {
         }),
     );
     options.textureName = name;
-    for (let i = 1; i <= 3; i++) {
-        options.scale = i;
-        texturePacker(assets, options, async (files, error) => {
-            if (error) throw error;
-            for (let item of files) {
-                const itemPath = join(assetsPath, `spriteSheets/${dir[i - 1]}/${item.name}`);
-                await fs.appendFile(itemPath, item.buffer);
-            }
-        });
-    }
+    texturePacker(assets, options, async (files, error) => {
+        if (error) throw error;
+        for (const item of files) {
+            const itemPath = join(assetsPath, `spriteSheets/${item.name}`);
+            await fs.appendFile(itemPath, item.buffer);
+        }
+    });
 }
 
 async function getFolderContent(folderPath, shorterPath = true, shortenFromFolder = "src") {
@@ -127,7 +127,7 @@ async function emptySpriteSheetFolder() {
 async function generateAtlases() {
     const { path } = paths.images;
     const spriteSheetNames = await fs.readdir(path, "utf8");
-    for (let s of spriteSheetNames) {
+    for (const s of spriteSheetNames) {
         const arr = await getFolderContent(join(path, s), true, s);
         await generateSpriteSheet(arr, s);
     }
@@ -139,26 +139,26 @@ async function generateAtlases() {
 
 async function generateUncompressedSprites() {
     const { path } = paths.uncompressed;
-    const arr = await getFolderContent(path, true);
-    const objArr = arr.map((el) => {
-        const name = getFileNameFromPath(el);
+    const files = await getFolderContent(path, true);
+    const filesNamesAndPaths = files.map((el) => {
+        const name = getFileNameWithExtension(el);
         return { name, path: el };
     });
     const file = join(assetsPath, "assetsNames/assets.ts");
-    const data = `export const assets: AssetNameAndPath[] = ${JSON.stringify(objArr)}`;
+    const data = `export const assets: AssetNameAndPath[] = ${JSON.stringify(filesNamesAndPaths)}`;
     await fs.writeFile(file, data);
     await runPrettierOn(file);
 }
 
 async function generateAudioAssets() {
     const { path } = paths.audio;
-    const arr = await getFolderContent(path, true);
-    const objArr = arr.map((el) => {
-        const name = getFileNameFromPath(el);
+    const files = await getFolderContent(path, true);
+    const filesNamesAndPath = files.map((el) => {
+        const name = getFileNameWithExtension(el);
         return { name, path: el };
     });
     const file = join(assetsPath, "assetsNames/audio.ts");
-    const data = `export const audioAssets: AssetNameAndPath[] = ${JSON.stringify(objArr)}`;
+    const data = `export const audioAssets: AssetNameAndPath[] = ${JSON.stringify(filesNamesAndPath)}`;
     await fs.writeFile(file, data);
     await runPrettierOn(file);
 }
