@@ -12,9 +12,10 @@ export const JWST = {
 };
 
 export const JWST_LABEL: Phaser.Types.GameObjects.Text.TextStyle = {
-    fontFamily: "Georgia",
-    fontSize: "28",
-    fontStyle: "strong",
+    //fontFamily: "Georgia",
+    //fontSize: "36px",
+    font: "36px Georgia",
+    //fontStyle: "strong",
     //backgroundColor: JWST.cBackground,
     color: "#000",
     // stroke: ,

@@ -17,13 +17,10 @@ export default class MainScene extends Phaser.Scene {
     private logic: Logic;
     private gameState = GAME.STATE.PAUSE;
     private moveCounter: number;
-    private scoreCounter: number;
 
     public constructor() {
         super({ key: SceneNames.Main });
     }
-
-    //public update(): void {}
 
     private init(): void {
         //this.initServices();
@@ -57,9 +54,9 @@ export default class MainScene extends Phaser.Scene {
 
     private makeNewGame(): void {
         this.gameEvents = new Phaser.Events.EventEmitter();
-        this.gameEvents.on("eventMove", this.move, this);
-        this.gameEvents.on("eventScoreUpdate", (newTilesSum: number) => {
-            this.scoreCounter += newTilesSum;
+        this.gameEvents.on(GAME.EVENT.MOVE, this.move, this);
+        this.gameEvents.on(GAME.EVENT.SCOREUPDATE, (newTilesSum: number) => {
+            this.uiView.updateCounter(newTilesSum);
             //console.log(`+${newTilesSum} = ${this.scoreCounter}`);
         });
         this.uiView.registerInputHandlers(this.gameEvents);
@@ -72,7 +69,7 @@ export default class MainScene extends Phaser.Scene {
         this.logic.addNewTiles(1, GAME.NEW_TILES);
         this.gameView.field.updateLabelsData(this.logic.getFieldValues());
         this.moveCounter = 0;
-        this.scoreCounter = 0;
+        this.uiView.updateCounter(0);
         this.gameState = GAME.STATE.PLAYING;
     }
 
@@ -97,7 +94,7 @@ export default class MainScene extends Phaser.Scene {
     private finishGame(): void {
         console.log("  ***  GAME FINISHED!  ***  ");
         console.log(`Moves: ${this.moveCounter}`);
-        console.log(`Score: ${this.scoreCounter}`);
+        this.uiView.showResults();
         if (this.logic.checkGoal(GAME.GOAL)) {
             console.log(" Game is WON: The goal has been achieved.");
             return;

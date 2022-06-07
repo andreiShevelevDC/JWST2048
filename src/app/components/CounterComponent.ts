@@ -1,40 +1,63 @@
-import { IocContext } from "power-di";
-import { PopupServiceEvents } from "../enums/PopupServiceEvents";
-import { PopupService } from "../services/PopupService";
+import * as HUD from "../configs/Hud";
+import LabelComponent from "./LabelComponent";
 
-export class CounterComponent extends Phaser.GameObjects.Container {
-    private bkg: Phaser.GameObjects.Sprite;
-    private label: Phaser.GameObjects.Text;
-    private rounds = 0;
-    private popupService: PopupService;
+export default class CounterComponent extends Phaser.GameObjects.Container {
+    private rectBack: Phaser.GameObjects.Rectangle;
+    private label: LabelComponent;
+    private counter = 0;
+    private xPos = this.scene.scale.gameSize.width + HUD.SCORE_LABEL_POS_X;
+    private yPos = HUD.SCORE_LABEL_POS_Y;
+    private readonly scoreText = "Score:";
 
     public constructor(scene) {
         super(scene);
         this.init();
     }
 
-    public updateRounds(): void {
-        this.label.setText(`Laps: ${++this.rounds}`);
-        this.popupService.event$.emit(PopupServiceEvents.RoundComplete, this.rounds);
+    public update(newValue: number): void {
+        this.counter += newValue;
+        this.label.setText(`${this.scoreText} ${this.counter.toString().padStart(4, "0")}`);
     }
+
+    public hide(): void {
+        this.label.hide();
+        this.rectBack.setVisible(false);
+    }
+
+    public show(): void {
+        this.label.show();
+        this.rectBack.setVisible(true);
+    }
+
+    public getValue = (): string => `${this.scoreText} ${this.counter.toString()}`;
 
     private init(): void {
         this.initBkg();
         this.initLabel();
-
-        this.popupService = IocContext.DefaultInstance.get(PopupService);
     }
 
     private initBkg(): void {
-        this.bkg = this.scene.add.sprite(0, 0, "game-ui", "counter-bkg.png");
-        this.add(this.bkg);
+        this.rectBack = this.scene.add.rectangle(
+            this.xPos, // - HUD.SCORE_BACK_SIZE_X / 2,
+            this.yPos, // - HUD.SCORE_BACK_SIZE_Y / 2,
+            HUD.SCORE_BACK_SIZE_X,
+            HUD.SCORE_BACK_SIZE_Y,
+            HUD.SCORE_BACK.cFill,
+            HUD.SCORE_BACK.aFill,
+        );
+        this.rectBack.setStrokeStyle(HUD.SCORE_BACK.wStroke, HUD.SCORE_BACK.cStroke, HUD.SCORE_BACK.aStroke);
+        this.rectBack.setOrigin(0.5, 0.5);
+        this.add(this.rectBack);
     }
 
     private initLabel(): void {
-        this.label = this.scene.add.text(-170, -5, `Laps: ${this.rounds}`, {
-            fontSize: "40px",
-        });
-        this.label.setOrigin(0, 0.5);
+        this.label = new LabelComponent(
+            this.scene,
+            this.xPos,
+            this.yPos,
+            `${this.scoreText} ${this.counter.toString().padStart(4, "0")}`,
+            HUD.SCORE_LABEL,
+        );
         this.add(this.label);
     }
 }

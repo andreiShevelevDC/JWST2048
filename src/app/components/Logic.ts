@@ -165,7 +165,7 @@ export default class Logic {
             ) {
                 neighbour.value = cell.value * GAME.BASE_TILE;
                 neighbour.merged = true;
-                this.gameEvents.emit("eventScoreUpdate", neighbour.value);
+                this.gameEvents.emit(GAME.EVENT.SCOREUPDATE, neighbour.value);
                 cell.value = GAME.CELL_EMPTY;
                 changedTiles = true;
             }
