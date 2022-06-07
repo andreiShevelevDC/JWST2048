@@ -12,6 +12,7 @@ export default class MainScene extends Phaser.Scene {
     private gameView: GameView;
     private uiView: UIView;
     //private foregroundView: ForegroundView;
+    private gameEvents: Phaser.Events.EventEmitter;
 
     private logic: Logic;
     private gameState = GAME.STATE.PAUSE;
@@ -30,7 +31,6 @@ export default class MainScene extends Phaser.Scene {
         //this.initForegroundView();
         //if (process.env.NODE_ENV !== "production") this.initStatJS();
         this.makeNewGame();
-        this.handleInput();
     }
 
     private initGameView(): void {
@@ -55,8 +55,10 @@ export default class MainScene extends Phaser.Scene {
     // }
 
     private makeNewGame(): void {
-        this.moveCounter = 0;
-        this.gameState = GAME.STATE.PLAYING;
+        this.gameEvents = new Phaser.Events.EventEmitter();
+        this.gameEvents.on("eventMove", this.move, this);
+        this.uiView.registerInputHandlers(this.gameEvents);
+
         this.startGame();
     }
 
@@ -64,37 +66,26 @@ export default class MainScene extends Phaser.Scene {
         this.logic = new Logic();
         this.logic.addNewTiles(1, GAME.NEW_TILES);
         this.gameView.field.updateLabelsData(this.logic.getFieldValues());
+        this.moveCounter = 0;
+        this.gameState = GAME.STATE.PLAYING;
     }
 
-    private handleInput(): void {
-        document.addEventListener(GAME.KEYBOARD_EVENT, (event) => {
-            const action = this.uiView.keyboard.keyboardHandler(event);
-            switch (action.key) {
-                case GAME.KEY.UNASSIGNED:
-                    //TODO: show hotkeys help popup
-                    break;
-                case GAME.KEY.MOVE:
-                    if (this.gameState === GAME.STATE.PLAYING && action.dir !== null) {
-                        //check if move changed field state and skip if not
-                        //console.log(fieldValues);
-                        this.logic.makeMove(action.dir);
-                        this.moveCounter++;
-                        if (this.canContinueGame()) {
-                            this.logic.addNewTiles(1, GAME.NEW_TILES);
-                            this.gameView.field.updateLabelsData(this.logic.getFieldValues());
-                        } else {
-                            this.gameState = GAME.STATE.PAUSE;
-                            this.finishGame();
-                        }
-                    } else {
-                        console.log(" START A NEW GAME");
-                    }
-                    break;
-                case GAME.KEY.UI:
-                    // UI action
-                    break;
+    private move(dir: number[]): void {
+        if (this.gameState === GAME.STATE.PLAYING) {
+            //check if move changed field state and skip if not
+            //console.log(fieldValues);
+            this.logic.makeMove(dir);
+            this.moveCounter++;
+            if (this.canContinueGame()) {
+                this.logic.addNewTiles(1, GAME.NEW_TILES);
+                this.gameView.field.updateLabelsData(this.logic.getFieldValues());
+            } else {
+                this.gameState = GAME.STATE.PAUSE;
+                this.finishGame();
             }
-        });
+        } else {
+            console.log(" START A NEW GAME");
+        }
     }
 
     private finishGame(): void {
