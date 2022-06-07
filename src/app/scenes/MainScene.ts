@@ -17,6 +17,7 @@ export default class MainScene extends Phaser.Scene {
     private logic: Logic;
     private gameState = GAME.STATE.PAUSE;
     private moveCounter: number;
+    private scoreCounter: number;
 
     public constructor() {
         super({ key: SceneNames.Main });
@@ -57,16 +58,21 @@ export default class MainScene extends Phaser.Scene {
     private makeNewGame(): void {
         this.gameEvents = new Phaser.Events.EventEmitter();
         this.gameEvents.on("eventMove", this.move, this);
+        this.gameEvents.on("eventScoreUpdate", (newTilesSum: number) => {
+            this.scoreCounter += newTilesSum;
+            //console.log(`+${newTilesSum} = ${this.scoreCounter}`);
+        });
         this.uiView.registerInputHandlers(this.gameEvents);
 
         this.startGame();
     }
 
     private startGame(): void {
-        this.logic = new Logic();
+        this.logic = new Logic(this.gameEvents);
         this.logic.addNewTiles(1, GAME.NEW_TILES);
         this.gameView.field.updateLabelsData(this.logic.getFieldValues());
         this.moveCounter = 0;
+        this.scoreCounter = 0;
         this.gameState = GAME.STATE.PLAYING;
     }
 
@@ -90,7 +96,8 @@ export default class MainScene extends Phaser.Scene {
 
     private finishGame(): void {
         console.log("  ***  GAME FINISHED!  ***  ");
-        console.log(` ${this.moveCounter} moves made.`);
+        console.log(`Moves: ${this.moveCounter}`);
+        console.log(`Score: ${this.scoreCounter}`);
         if (this.logic.checkGoal(GAME.GOAL)) {
             console.log(" Game is WON: The goal has been achieved.");
             return;

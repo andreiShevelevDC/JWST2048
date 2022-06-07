@@ -14,6 +14,7 @@ type Cell = {
 };
 
 export default class Logic {
+    private gameEvents: Phaser.Events.EventEmitter;
     private readonly fieldRings = [
         //[0,0],  // center cell, created in GameLogic.createCircularField()
         [0, 1, 1, 0, 1, -1, 0, -1, -1, 0, -1, 1], // ring 2 (+6 cells)
@@ -25,7 +26,8 @@ export default class Logic {
     ];
     private field: Cell[] = [];
 
-    public constructor() {
+    public constructor(gameEvents: Phaser.Events.EventEmitter) {
+        this.gameEvents = gameEvents;
         this.createCircularField();
     }
 
@@ -154,9 +156,16 @@ export default class Logic {
 
         this.field.forEach((cell) => {
             neighbour = this.getNeighbour(cell, dirVector);
-            if (neighbour && neighbour.value === cell.value && !neighbour.merged) {
+            if (
+                cell.value !== GAME.CELL_EMPTY &&
+                cell.value !== GAME.CELL_DISABLED &&
+                neighbour &&
+                neighbour.value === cell.value &&
+                !neighbour.merged
+            ) {
                 neighbour.value = cell.value * GAME.BASE_TILE;
                 neighbour.merged = true;
+                this.gameEvents.emit("eventScoreUpdate", neighbour.value);
                 cell.value = GAME.CELL_EMPTY;
                 changedTiles = true;
             }
