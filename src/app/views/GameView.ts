@@ -14,6 +14,10 @@ export class GameView extends Phaser.GameObjects.Container {
         this.init();
     }
 
+    public updatePosition(): void {
+        this.field.draw();
+    }
+
     private init(): void {
         //this.initBkg();
         // this.initSpine();
@@ -23,7 +27,6 @@ export class GameView extends Phaser.GameObjects.Container {
 
     private initField(): void {
         this.field = new DrawField(this.scene);
-        this.scene.scale.on("resize", () => this.field.draw());
     }
 
     // private initBkg(): void {

@@ -12,11 +12,18 @@ export default class CounterComponent extends Phaser.GameObjects.Container {
     public constructor(scene) {
         super(scene);
         this.init();
+        this.updatePosition();
     }
 
     public update(newValue: number): void {
         this.counter += newValue;
         this.label.setText(`${this.scoreText} ${this.counter.toString().padStart(4, "0")}`);
+    }
+
+    public updatePosition(): void {
+        this.xPos = this.scene.scale.gameSize.width + HUD.SCORE_LABEL_POS_X;
+        this.rectBack.setPosition(this.xPos, this.yPos);
+        this.label.setPosition(this.xPos, this.yPos);
     }
 
     public hide(): void {

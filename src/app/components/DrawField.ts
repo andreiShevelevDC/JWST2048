@@ -1,6 +1,6 @@
 import * as THEME from "../configs/Field";
 import * as GAME from "../configs/Game";
-import LabelComponent from "./LabelComponent";
+import HexLabelComponent from "./HexLabelComponent";
 
 type Point = {
     x: number;
@@ -12,7 +12,7 @@ export default class DrawField extends Phaser.GameObjects.Container {
     private readonly partOfShortSizeUsed = 0.9;
 
     private allHexes: Phaser.GameObjects.Polygon[] = [];
-    private readonly allLabels: LabelComponent[] = [];
+    private readonly allLabels: HexLabelComponent[] = [];
 
     public constructor(scene: Phaser.Scene) {
         super(scene);
@@ -26,7 +26,7 @@ export default class DrawField extends Phaser.GameObjects.Container {
         this.allLabels.forEach((label, i) => {
             if (values[i] !== null) {
                 if (values[i] === 0) label.setText("");
-                else label.setText(values[i].toString());
+                else label.setValue(values[i]);
             }
         });
     }
@@ -77,18 +77,18 @@ export default class DrawField extends Phaser.GameObjects.Container {
         hexesCenters.forEach((hexCenter) => this.allHexes.push(this.hex(hexCenter, hexRadius)));
 
         if (this.allLabels.length === 0) this.createLabels();
-        this.updateLabels();
+        this.updateLabels(hexRadius);
     }
 
-    // TODO: change font size according to hex size
-    private updateLabels(): void {
-        this.allHexes.forEach(
-            (hex, i) => this.allLabels[i].setPosition(hex.x, hex.y), //.setFontSize(36)
-        );
+    private updateLabels(hexRadius: number): void {
+        this.allHexes.forEach((hex, i) => {
+            this.allLabels[i].setPosition(hex.x, hex.y);
+            this.allLabels[i].setFontSizeOnHexSize(hexRadius);
+        });
     }
 
     private createLabels(): void {
-        this.allHexes.forEach(() => this.allLabels.push(new LabelComponent(this.scene, 0, 0, "")));
+        this.allHexes.forEach(() => this.allLabels.push(new HexLabelComponent(this.scene, 0, 0)));
     }
 
     private getInterimHexCenters(cornerHexesCenters: Point[], circleNum: number): Point[] {

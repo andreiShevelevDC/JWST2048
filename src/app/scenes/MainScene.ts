@@ -60,6 +60,10 @@ export default class MainScene extends Phaser.Scene {
             //console.log(`+${newTilesSum} = ${this.scoreCounter}`);
         });
         this.uiView.registerInputHandlers(this.gameEvents);
+        this.scale.on("resize", () => {
+            this.gameView.updatePosition();
+            this.uiView.updatePosition();
+        });
 
         this.startGame();
     }

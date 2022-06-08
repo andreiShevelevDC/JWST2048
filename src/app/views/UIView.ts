@@ -37,6 +37,10 @@ export class UIView extends Phaser.GameObjects.Container {
         });
     }
 
+    public updatePosition(): void {
+        this.counter.updatePosition();
+    }
+
     private init(): void {
         this.keyboard = new KeyboardHandler();
         this.initCounter();
