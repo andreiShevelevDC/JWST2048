@@ -12,6 +12,7 @@ export enum STATE {
 export enum EVENT {
     MOVE = "eventMove",
     SCOREUPDATE = "eventScoreUpdate",
+    UI = "eventUI",
 }
 
 export const NEW_TILES = [BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE ** 2, BASE_TILE ** 2];

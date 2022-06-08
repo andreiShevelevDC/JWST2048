@@ -36,7 +36,7 @@ export default class CounterComponent extends Phaser.GameObjects.Container {
         this.rectBack.setVisible(true);
     }
 
-    public getValue = (): string => `${this.scoreText} ${this.counter.toString()}`;
+    public getValue = (): number => this.counter;
 
     private init(): void {
         this.initBkg();

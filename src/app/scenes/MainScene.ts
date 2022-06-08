@@ -2,7 +2,7 @@
 import * as Stats from "stats.js";
 import { SceneNames } from "../enums/Scenes";
 //import { PopupService } from "../services/PopupService";
-//import { ForegroundView } from "../views/ForegroundView";
+import { ForegroundView } from "../views/ForegroundView";
 import { GameView } from "../views/GameView";
 import { UIView } from "../views/UIView";
 import * as GAME from "../configs/Game";
@@ -11,7 +11,7 @@ import Logic from "../components/Logic";
 export default class MainScene extends Phaser.Scene {
     private gameView: GameView;
     private uiView: UIView;
-    //private foregroundView: ForegroundView;
+    private foregroundView: ForegroundView;
     private gameEvents: Phaser.Events.EventEmitter;
 
     private logic: Logic;
@@ -26,7 +26,7 @@ export default class MainScene extends Phaser.Scene {
         //this.initServices();
         this.initGameView();
         this.initUIView();
-        //this.initForegroundView();
+        this.initForegroundView();
         //if (process.env.NODE_ENV !== "production") this.initStatJS();
         this.makeNewGame();
     }
@@ -44,13 +44,13 @@ export default class MainScene extends Phaser.Scene {
         this.add.existing(this.uiView);
     }
 
-    // private initForegroundView(): void {
-    //     this.foregroundView = new ForegroundView(this);
-    //     this.foregroundView.on("counterPopupClosed", () => {
-    //         this.gameView.runRacoon();
-    //     });
-    //     this.add.existing(this.foregroundView);
-    // }
+    private initForegroundView(): void {
+        this.foregroundView = new ForegroundView(this);
+        // this.foregroundView.on("counterPopupClosed", () => {
+        //     this.gameView.runRacoon();
+        // });
+        this.add.existing(this.foregroundView);
+    }
 
     private makeNewGame(): void {
         this.gameEvents = new Phaser.Events.EventEmitter();
@@ -59,10 +59,17 @@ export default class MainScene extends Phaser.Scene {
             this.uiView.updateCounter(newTilesSum);
             //console.log(`+${newTilesSum} = ${this.scoreCounter}`);
         });
+        this.gameEvents.on(GAME.EVENT.UI, (key: string) => {
+            if (key === "KeyF") {
+                this.uiView.hide();
+                this.foregroundView.showResults(this.uiView.getCounter());
+            }
+        });
         this.uiView.registerInputHandlers(this.gameEvents);
         this.scale.on("resize", () => {
             this.gameView.updatePosition();
             this.uiView.updatePosition();
+            this.foregroundView.updatePosition();
         });
 
         this.startGame();
@@ -98,7 +105,8 @@ export default class MainScene extends Phaser.Scene {
     private finishGame(): void {
         console.log("  ***  GAME FINISHED!  ***  ");
         console.log(`Moves: ${this.moveCounter}`);
-        this.uiView.showResults();
+        this.uiView.hide();
+        this.foregroundView.showResults(this.uiView.getCounter());
         if (this.logic.checkGoal(GAME.GOAL)) {
             console.log(" Game is WON: The goal has been achieved.");
             return;

@@ -40,6 +40,10 @@ export default class KeyboardHandler {
             case GAME.MOVE_KEYS[11]:
                 return { key: GAME.KEY.MOVE, dir: GAME.DIRECTION.D };
 
+            // test popup
+            case "KeyF":
+                return { key: GAME.KEY.UI, dir: null };
+
             default:
                 //console.log("Unhandled key pressed: ", this.keyCode);
                 return { key: GAME.KEY.UNASSIGNED, dir: null };

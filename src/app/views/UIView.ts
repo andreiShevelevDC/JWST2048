@@ -15,10 +15,17 @@ export class UIView extends Phaser.GameObjects.Container {
         this.counter.update(newValue);
     }
 
-    // TODO: output end game popup
-    public showResults(): void {
+    // used to show end game results
+    public hide(): void {
         console.log(this.counter.getValue());
+        this.counter.hide();
     }
+
+    public show(): void {
+        this.counter.show();
+    }
+
+    public getCounter = (): number => this.counter.getValue();
 
     public registerInputHandlers(gameEvents: Phaser.Events.EventEmitter): void {
         document.addEventListener(GAME.KEYBOARD_EVENT, (event) => {
@@ -32,6 +39,7 @@ export class UIView extends Phaser.GameObjects.Container {
                     break;
                 case GAME.KEY.UI:
                     // UI action
+                    gameEvents.emit(GAME.EVENT.UI, "KeyF");
                     break;
             }
         });
