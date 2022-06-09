@@ -76,6 +76,27 @@ export default class GameView extends Phaser.GameObjects.Container {
         });
     }
 
+    public animateShiftedTiles(hexIndices: number[], dirVector: number[]): void {
+        hexIndices.forEach((index) => {
+            this.allLabels[index].setAlpha(0.0);
+            this.scene.tweens.add({
+                targets: this.allLabels[index],
+                alpha: 1.0,
+                ease: "Sine.easeInExpo",
+                duration: 500,
+                repeat: 0,
+            });
+            this.allLabels[index].setScale(0.1);
+            this.scene.tweens.add({
+                targets: this.allLabels[index],
+                scale: 1.0,
+                ease: "Sine.easeInExpo",
+                duration: 500,
+                repeat: 0,
+            });
+        });
+    }
+
     public animateNewTiles(hexIndices: number[]): void {
         hexIndices.forEach((index) => {
             this.scene.tweens.add({

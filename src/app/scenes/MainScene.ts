@@ -54,11 +54,11 @@ export default class MainScene extends Phaser.Scene {
 
     private makeNewGame(): void {
         this.gameEvents = new Phaser.Events.EventEmitter();
+        this.gameEvents.on(GAME.EVENT.TILESSHIFT, (shiftedTiles: number[], dirVector: number[]) =>
+            this.gameView.animateShiftedTiles(shiftedTiles, dirVector),
+        );
         this.gameEvents.on(GAME.EVENT.MOVE, this.move, this);
-        this.gameEvents.on(GAME.EVENT.SCOREUPDATE, (newTilesSum: number) => {
-            this.uiView.updateCounter(newTilesSum);
-            //console.log(`+${newTilesSum} = ${this.scoreCounter}`);
-        });
+        this.gameEvents.on(GAME.EVENT.SCOREUPDATE, (newTilesSum: number) => this.uiView.updateCounter(newTilesSum));
         this.gameEvents.on(GAME.EVENT.UI, (key: string) => {
             if (key === "KeyF") {
                 if (!this.foregroundView.endgamePopup.isOpen) {
