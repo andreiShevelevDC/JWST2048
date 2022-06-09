@@ -43,31 +43,36 @@ export default class LogicComponent {
     // tilesNum - number of cells to add values to (create new "tiles")
     // newValues - array of values to randomly choose from, ex. [2], or [2, 4],
     // or [2, 2, 2, 4] - where 4 will be created with 25% chance
-    public addNewTiles(tilesNum, newValues): void {
+    public addNewTiles(tilesNum: number, newValues: number[]): number[] {
         const maxTilesToAdd: number = this.getEmptyCellsNum();
         if (tilesNum > maxTilesToAdd) {
             console.log("ERROR: can't add ", tilesNum, " tiles. Adding maximum of ", maxTilesToAdd);
             tilesNum = maxTilesToAdd;
         }
-
-        const emptyCells = this.field.filter((cell) => cell.value === GAME.CELL_EMPTY);
+        const emptyCellsIndices: number[] = this.field
+            .map((cell, index) => (cell.value === GAME.CELL_EMPTY ? index : -1))
+            .filter((val) => val > -1);
+        let randomEmptyCellIndex: number;
+        const newTilesIndices: number[] = [];
         for (let i = 0; i < tilesNum; i++) {
-            const rand = this.getRandomVal(emptyCells.length);
-            const cellForNewVal = this.field.find(
-                (cell) => cell.x === emptyCells[rand].x && cell.y === emptyCells[rand].y,
-            );
-            emptyCells.splice(rand, 1);
-            if (cellForNewVal) cellForNewVal.value = newValues[this.getRandomVal(newValues.length)];
+            randomEmptyCellIndex = this.getRandomVal(emptyCellsIndices.length);
+            this.field[emptyCellsIndices[randomEmptyCellIndex]].value = newValues[this.getRandomVal(newValues.length)];
+            newTilesIndices.push(emptyCellsIndices[randomEmptyCellIndex]);
+            emptyCellsIndices.splice(randomEmptyCellIndex, 1);
         }
+        return newTilesIndices;
     }
 
-    public makeMove(dirVector: number[]): void {
+    public makeMove(dirVector: number[]): number[] {
+        const mergedCellsIndices: number[] = [];
         while (true) {
             if (!this.shift(dirVector)) break; // not a single tile moved
             //console.log("tiles shifted");
         }
-        if (this.merge(dirVector)) {
+        const newMergedCellsIndices = this.merge(dirVector);
+        if (newMergedCellsIndices.length > 0) {
             // there are merged tiles, start shifting tiles again
+            mergedCellsIndices.push(...newMergedCellsIndices);
             this.makeMove(dirVector); // recursive call
         } else {
             // no merged tiles
@@ -75,6 +80,7 @@ export default class LogicComponent {
                 cell.merged = false;
             });
         }
+        return mergedCellsIndices;
     }
 
     // check if the tile with goal value has been made
@@ -131,7 +137,7 @@ export default class LogicComponent {
     // dirVector = [x, y]
     private shift(dirVector: number[]): boolean {
         let changedTiles = false;
-        let neighbour: Cell | null;
+        let neighbour: { cell: Cell; index: number } | null;
 
         this.field.forEach((cell) => {
             neighbour = this.getNeighbour(cell, dirVector);
@@ -139,10 +145,9 @@ export default class LogicComponent {
                 cell.value !== GAME.CELL_EMPTY &&
                 cell.value !== GAME.CELL_DISABLED &&
                 neighbour &&
-                //neighbour.hasOwnProperty("value") &&
-                neighbour.value === GAME.CELL_EMPTY
+                neighbour.cell.value === GAME.CELL_EMPTY
             ) {
-                neighbour.value = cell.value;
+                neighbour.cell.value = cell.value;
                 cell.value = GAME.CELL_EMPTY;
                 changedTiles = true;
             }
@@ -150,38 +155,37 @@ export default class LogicComponent {
         return changedTiles;
     }
 
-    private merge(dirVector: number[]): boolean {
-        let changedTiles = false;
-        let neighbour: Cell | null;
-
+    private merge(dirVector: number[]): number[] {
+        const changedTilesIndices: number[] = [];
+        let neighbour: { cell: Cell; index: number } | null;
         this.field.forEach((cell) => {
             neighbour = this.getNeighbour(cell, dirVector);
             if (
                 cell.value !== GAME.CELL_EMPTY &&
                 cell.value !== GAME.CELL_DISABLED &&
                 neighbour &&
-                neighbour.value === cell.value &&
-                !neighbour.merged
+                neighbour.cell.value === cell.value &&
+                !neighbour.cell.merged
             ) {
-                neighbour.value = cell.value * GAME.BASE_TILE;
-                neighbour.merged = true;
-                this.gameEvents.emit(GAME.EVENT.SCOREUPDATE, neighbour.value);
+                neighbour.cell.value = cell.value * GAME.BASE_TILE;
+                neighbour.cell.merged = true;
+                this.gameEvents.emit(GAME.EVENT.SCOREUPDATE, neighbour.cell.value);
                 cell.value = GAME.CELL_EMPTY;
-                changedTiles = true;
+                changedTilesIndices.push(neighbour.index);
             }
         });
-        return changedTiles;
+        return changedTilesIndices;
     }
 
     // returns the next to current cell in the given direction
-    private getNeighbour(cell: Cell, dirVector: number[]): Cell | null {
+    private getNeighbour(cell: Cell, dirVector: number[]): { cell: Cell; index: number } | null {
         for (let i = 0; i < this.field.length; i++) {
             if (
                 this.field[i].x === cell.x + dirVector[0] &&
                 this.field[i].y === cell.y + dirVector[1] &&
                 this.field[i].z === cell.z - dirVector[0] - dirVector[1]
             )
-                return this.field[i];
+                return { cell: this.field[i], index: i };
         }
         return null;
     }

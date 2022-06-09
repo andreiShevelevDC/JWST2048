@@ -91,13 +91,12 @@ export default class MainScene extends Phaser.Scene {
 
     private move(dir: number[]): void {
         if (this.gameState === GAME.STATE.PLAYING) {
-            //check if move changed field state and skip if not
-            //console.log(fieldValues);
-            this.logic.makeMove(dir);
+            this.gameView.animateMergedTiles(this.logic.makeMove(dir));
             this.moveCounter++;
             if (this.canContinueGame()) {
-                this.logic.addNewTiles(1, GAME.NEW_TILES);
+                const newTiles: number[] = this.logic.addNewTiles(1, GAME.NEW_TILES);
                 this.gameView.updateLabelsData(this.logic.getFieldValues());
+                this.gameView.animateNewTiles(newTiles);
             } else {
                 this.gameState = GAME.STATE.PAUSE;
                 this.finishGame();

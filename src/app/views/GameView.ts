@@ -53,6 +53,58 @@ export default class GameView extends Phaser.GameObjects.Container {
         this.setPosition(this.x + shift.x, this.y + shift.y);
     }
 
+    public animateMergedTiles(hexIndices: number[]): void {
+        hexIndices.forEach((index) => {
+            this.scene.tweens.add({
+                targets: this.allHexes[index],
+                scale: 1.2,
+                ease: "Sine.easeInOut",
+                duration: 300,
+                repeat: 0,
+                yoyo: true,
+            });
+            this.allLabels[index].setStyle({ color: "#ff0000" });
+            this.scene.tweens.add({
+                targets: this.allLabels[index],
+                scale: 1.7,
+                ease: "Sine.easeInExpo",
+                duration: 300,
+                repeat: 0,
+                yoyo: true,
+                onComplete: () => this.allLabels[index].setStyle({ color: THEME.JWST_LABEL.color }),
+            });
+        });
+    }
+
+    public animateNewTiles(hexIndices: number[]): void {
+        hexIndices.forEach((index) => {
+            this.scene.tweens.add({
+                targets: this.allHexes[index],
+                scale: 0.8,
+                ease: "Sine.easeInOut",
+                duration: 300,
+                repeat: 0,
+                yoyo: true,
+            });
+            this.allLabels[index].setAlpha(0.0);
+            this.scene.tweens.add({
+                targets: this.allLabels[index],
+                alpha: 1.0,
+                ease: "Sine.easeInExpo",
+                duration: 500,
+                repeat: 0,
+            });
+            this.allLabels[index].setScale(0.1);
+            this.scene.tweens.add({
+                targets: this.allLabels[index],
+                scale: 1.0,
+                ease: "Sine.easeInExpo",
+                duration: 500,
+                repeat: 0,
+            });
+        });
+    }
+
     private setCoordinates(): void {
         this.prevCenter = this.currCenter;
         this.prevHexRadius = this.currHexRadius;
