@@ -6,7 +6,7 @@ import { ForegroundView } from "../views/ForegroundView";
 import GameView from "../views/GameView";
 import { UIView } from "../views/UIView";
 import * as GAME from "../configs/Game";
-import Logic from "../components/Logic";
+import LogicComponent from "../components/LogicComponent";
 
 export default class MainScene extends Phaser.Scene {
     private gameView: GameView;
@@ -14,7 +14,7 @@ export default class MainScene extends Phaser.Scene {
     private foregroundView: ForegroundView;
     private gameEvents: Phaser.Events.EventEmitter;
 
-    private logic: Logic;
+    private logic: LogicComponent;
     private gameState = GAME.STATE.PAUSE;
     private moveCounter: number;
 
@@ -61,8 +61,13 @@ export default class MainScene extends Phaser.Scene {
         });
         this.gameEvents.on(GAME.EVENT.UI, (key: string) => {
             if (key === "KeyF") {
-                this.uiView.hide();
-                this.foregroundView.showResults(this.uiView.getCounter());
+                if (!this.foregroundView.endgamePopup.isOpen) {
+                    this.uiView.hide();
+                    this.foregroundView.showResults(this.uiView.getCounter());
+                } else {
+                    this.foregroundView.endgamePopup.hide();
+                    this.uiView.show();
+                }
             }
         });
         this.uiView.registerInputHandlers(this.gameEvents);
@@ -76,7 +81,7 @@ export default class MainScene extends Phaser.Scene {
     }
 
     private startGame(): void {
-        this.logic = new Logic(this.gameEvents);
+        this.logic = new LogicComponent(this.gameEvents);
         this.logic.addNewTiles(1, GAME.NEW_TILES);
         this.gameView.updateLabelsData(this.logic.getFieldValues());
         this.moveCounter = 0;

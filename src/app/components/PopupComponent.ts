@@ -1,15 +1,15 @@
 import * as HUD from "../configs/Hud";
 import LabelComponent from "./LabelComponent";
 
-export default class CounterComponent extends Phaser.GameObjects.Container {
+export default class PopupComponent extends Phaser.GameObjects.Container {
+    public isOpen: boolean;
+
     private rectBack: Phaser.GameObjects.Rectangle;
     private label: LabelComponent;
     private button: Phaser.GameObjects.Rectangle;
     private buttonLabel: LabelComponent;
     private readonly popupText = "Final score:";
     private readonly buttonText = "New Game";
-
-    private isOpen: boolean;
 
     public constructor(scene) {
         super(scene);
@@ -98,10 +98,34 @@ export default class CounterComponent extends Phaser.GameObjects.Container {
                 new Phaser.Geom.Rectangle(0, 0, HUD.ENDGAME_POPUP_BUTTON.sizeX, HUD.ENDGAME_POPUP_BUTTON.sizeY),
                 Phaser.Geom.Rectangle.Contains,
             )
-            .on("pointerover", () => console.log("over"))
-            .on("pointerout", () => console.log("out"))
-            .on("pointerdown", () => console.log("down"));
+            .on("pointerover", () => this.setButtonActive())
+            .on("pointerout", () => this.setButtonNormal())
+            .on("pointerdown", () => this.hide());
         this.add(this.button);
+    }
+
+    private setButtonNormal(): void {
+        this.button.setFillStyle(HUD.ENDGAME_POPUP_BUTTON.cFill, HUD.ENDGAME_POPUP_BUTTON.aFill);
+        this.button.setStrokeStyle(
+            HUD.ENDGAME_POPUP_BUTTON.wStroke,
+            HUD.ENDGAME_POPUP_BUTTON.cStroke,
+            HUD.ENDGAME_POPUP_BUTTON.aStroke,
+        );
+        this.button.setScale(1.0);
+        this.buttonLabel.setFill(HUD.ENDGAME_POPUP_BUTTON_LABEL.color);
+        this.buttonLabel.setFont(HUD.ENDGAME_POPUP_BUTTON_LABEL.font);
+    }
+
+    private setButtonActive(): void {
+        this.button.setFillStyle(HUD.ENDGAME_POPUP_BUTTON.cFillActive, HUD.ENDGAME_POPUP_BUTTON.aFillActive);
+        this.button.setStrokeStyle(
+            HUD.ENDGAME_POPUP_BUTTON.wStrokeActive,
+            HUD.ENDGAME_POPUP_BUTTON.cStrokeActive,
+            HUD.ENDGAME_POPUP_BUTTON.aStrokeActive,
+        );
+        this.button.setScale(1.2);
+        this.buttonLabel.setFill(HUD.ENDGAME_POPUP_BUTTON_LABEL_ACTIVE.color);
+        this.buttonLabel.setFont(HUD.ENDGAME_POPUP_BUTTON_LABEL_ACTIVE.font);
     }
 
     private initButtonLabel(): void {

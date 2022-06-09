@@ -12,7 +12,8 @@ export default class GameView extends Phaser.GameObjects.Container {
     private readonly partOfShortSizeUsed = 0.9;
     private currCenter: Point;
     private prevCenter: Point;
-    private currHexRadius: number;
+    private currHexRadius = 0;
+    private prevHexRadius: number;
 
     private allHexes: Phaser.GameObjects.Polygon[] = [];
     private readonly allLabels: HexLabelComponent[] = [];
@@ -39,6 +40,12 @@ export default class GameView extends Phaser.GameObjects.Container {
         this.setCoordinates();
         //this.readjustHexes();
         //this.updateLabels();
+        // console.log("Scale: ", this.scale);
+        // let scaleRate = 1;
+        // console.log(this.currHexRadius, this.prevHexRadius);
+        // if (this.prevHexRadius) scaleRate = this.currHexRadius / this.prevHexRadius;
+        // this.setScale(scaleRate);
+        //console.log(this.width, this.height);
         const shift: Point = {
             x: this.currCenter.x - this.prevCenter.x,
             y: this.currCenter.y - this.prevCenter.y,
@@ -48,6 +55,7 @@ export default class GameView extends Phaser.GameObjects.Container {
 
     private setCoordinates(): void {
         this.prevCenter = this.currCenter;
+        this.prevHexRadius = this.currHexRadius;
         const { width, height } = this.scene.scale.gameSize;
         this.currCenter = { x: width / 2, y: height / 2 };
         let radius: number = height > width ? width : height;

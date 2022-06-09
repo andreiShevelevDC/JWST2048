@@ -13,7 +13,7 @@ type Cell = {
     merged: boolean; // become true if tile was merged this turn
 };
 
-export default class Logic {
+export default class LogicComponent {
     private gameEvents: Phaser.Events.EventEmitter;
     private readonly fieldRings = [
         //[0,0],  // center cell, created in GameLogic.createCircularField()

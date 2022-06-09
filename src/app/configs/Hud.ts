@@ -26,7 +26,7 @@ export const ENDGAME_POPUP_BACK = {
     sizeX: 250,
     sizeY: 150,
     cFill: 0x000000,
-    aFill: 0.7,
+    aFill: 0.75,
     wStroke: 2,
     cStroke: 0xfccc00,
     aStroke: 1.0,
@@ -40,11 +40,11 @@ export const ENDGAME_POPUP_BUTTON = {
     wStroke: 0,
     cStroke: 0x000000,
     aStroke: 0.0,
-    cFillActive: 0xfccc000,
+    cFillActive: 0x7d6600,
     aFillActive: 1.0,
-    wStrokeActive: 0,
-    cStrokeActive: 0x000000,
-    aStrokeActive: 0.0,
+    wStrokeActive: 1,
+    cStrokeActive: 0xfccc00,
+    aStrokeActive: 0.5,
 };
 
 export const ENDGAME_POPUP_BUTTON_LABEL = {
@@ -53,6 +53,6 @@ export const ENDGAME_POPUP_BUTTON_LABEL = {
 };
 
 export const ENDGAME_POPUP_BUTTON_LABEL_ACTIVE = {
-    font: "18px Georgia",
+    font: "21px Georgia",
     color: "#fccc00",
 };

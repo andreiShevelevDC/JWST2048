@@ -7,7 +7,7 @@ import PopupComponent from "../components/PopupComponent";
 export class ForegroundView extends Phaser.GameObjects.Container {
     // private modal: Phaser.GameObjects.Sprite;
     // private counterPopup: CounterPopup;
-    private endgamePopup: PopupComponent;
+    public endgamePopup: PopupComponent;
 
     public constructor(scene) {
         super(scene);
