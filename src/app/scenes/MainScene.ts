@@ -17,6 +17,7 @@ export default class MainScene extends Phaser.Scene {
     private logic: LogicComponent;
     private gameState = GAME.STATE.PAUSE;
     private moveCounter: number;
+    private movingTiles: number[];
 
     public constructor() {
         super({ key: SceneNames.Main });
@@ -54,10 +55,13 @@ export default class MainScene extends Phaser.Scene {
 
     private makeNewGame(): void {
         this.gameEvents = new Phaser.Events.EventEmitter();
-        this.gameEvents.on(GAME.EVENT.TILESSHIFT, (shiftedTiles: number[], dirVector: number[]) =>
-            this.gameView.animateShiftedTiles(shiftedTiles, dirVector),
-        );
-        this.gameEvents.on(GAME.EVENT.MOVE, this.move, this);
+        this.gameEvents.on(GAME.EVENT.TILESSHIFTSTART, (shiftedTiles: number[], dirVector: number[]) => {
+            this.movingTiles = shiftedTiles;
+            this.gameView.animateShiftedTiles(shiftedTiles, dirVector);
+        });
+        this.gameEvents.on(GAME.EVENT.TILESSHIFTEND, () => this.logic.shiftEnd(this.movingTiles));
+        this.gameEvents.on(GAME.EVENT.MOVE, this.startMove, this);
+        this.gameEvents.on(GAME.EVENT.MOVEEND, this.endMove, this);
         this.gameEvents.on(GAME.EVENT.SCOREUPDATE, (newTilesSum: number) => this.uiView.updateCounter(newTilesSum));
         this.gameEvents.on(GAME.EVENT.UI, (key: string) => {
             if (key === "KeyF") {
@@ -71,6 +75,7 @@ export default class MainScene extends Phaser.Scene {
             }
         });
         this.uiView.registerInputHandlers(this.gameEvents);
+        this.gameView.registerEventHandler(this.gameEvents);
         this.scale.on("resize", () => {
             this.gameView.updatePosition();
             this.uiView.updatePosition();
@@ -89,20 +94,21 @@ export default class MainScene extends Phaser.Scene {
         this.gameState = GAME.STATE.PLAYING;
     }
 
-    private move(dir: number[]): void {
-        if (this.gameState === GAME.STATE.PLAYING) {
-            this.gameView.animateMergedTiles(this.logic.makeMove(dir));
-            this.moveCounter++;
-            if (this.canContinueGame()) {
-                const newTiles: number[] = this.logic.addNewTiles(1, GAME.NEW_TILES);
-                this.gameView.updateLabelsData(this.logic.getFieldValues());
-                this.gameView.animateNewTiles(newTiles);
-            } else {
-                this.gameState = GAME.STATE.PAUSE;
-                this.finishGame();
-            }
+    private startMove(dir: number[]): void {
+        if (this.gameState === GAME.STATE.PLAYING) this.logic.startMove(dir);
+        else console.log(" START A NEW GAME");
+    }
+
+    private endMove(mergedTilesIndices: number[]): void {
+        this.gameView.animateMergedTiles(mergedTilesIndices);
+        this.moveCounter++;
+        if (this.canContinueGame()) {
+            const newTiles: number[] = this.logic.addNewTiles(1, GAME.NEW_TILES);
+            this.gameView.updateLabelsData(this.logic.getFieldValues());
+            this.gameView.animateNewTiles(newTiles);
         } else {
-            console.log(" START A NEW GAME");
+            this.gameState = GAME.STATE.PAUSE;
+            this.finishGame();
         }
     }
 

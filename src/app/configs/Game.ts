@@ -13,7 +13,9 @@ export enum EVENT {
     MOVE = "eventMove",
     SCOREUPDATE = "eventScoreUpdate",
     UI = "eventUI",
-    TILESSHIFT = "eventTilesShift",
+    TILESSHIFTSTART = "eventTilesShiftStart",
+    TILESSHIFTEND = "eventTilesShiftEnd",
+    MOVEEND = "eventMoveEnd",
 }
 
 export const NEW_TILES = [BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE ** 2, BASE_TILE ** 2];

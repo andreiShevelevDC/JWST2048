@@ -17,12 +17,17 @@ export default class GameView extends Phaser.GameObjects.Container {
 
     private allHexes: Phaser.GameObjects.Polygon[] = [];
     private readonly allLabels: HexLabelComponent[] = [];
+    private gameEvents: Phaser.Events.EventEmitter;
 
     public constructor(scene: Phaser.Scene) {
         super(scene);
         this.setCoordinates();
         this.draw();
         //this.updateLabelsData();
+    }
+
+    public registerEventHandler(gameEvents: Phaser.Events.EventEmitter): void {
+        this.gameEvents = gameEvents;
     }
 
     // should receive array of strings with new labels' values
@@ -77,22 +82,44 @@ export default class GameView extends Phaser.GameObjects.Container {
     }
 
     public animateShiftedTiles(hexIndices: number[], dirVector: number[]): void {
+        let i = hexIndices.length;
+        let angle: number;
+        switch (dirVector) {
+            case GAME.DIRECTION.Q:
+                angle = -150;
+                break;
+            case GAME.DIRECTION.W:
+                angle = -90;
+                break;
+            case GAME.DIRECTION.E:
+                angle = -30;
+                break;
+            case GAME.DIRECTION.A:
+                angle = 170;
+                break;
+            case GAME.DIRECTION.S:
+                angle = 90;
+                break;
+            case GAME.DIRECTION.D:
+                angle = 30;
+                break;
+            default:
+                angle = 0;
+        }
+
         hexIndices.forEach((index) => {
-            this.allLabels[index].setAlpha(0.0);
             this.scene.tweens.add({
                 targets: this.allLabels[index],
-                alpha: 1.0,
+                x: this.allLabels[index].getCenter().x + this.currHexRadius * Math.cos((angle * Math.PI) / 180),
+                y: this.allLabels[index].getCenter().y + this.currHexRadius * Math.sin((angle * Math.PI) / 180),
                 ease: "Sine.easeInExpo",
-                duration: 500,
+                duration: 300,
                 repeat: 0,
-            });
-            this.allLabels[index].setScale(0.1);
-            this.scene.tweens.add({
-                targets: this.allLabels[index],
-                scale: 1.0,
-                ease: "Sine.easeInExpo",
-                duration: 500,
-                repeat: 0,
+                onComplete: () => {
+                    i--;
+                    //console.log("Tiles left to move: ", i);
+                    if (i === 0) this.gameEvents.emit(GAME.EVENT.TILESSHIFTEND);
+                },
             });
         });
     }
@@ -136,20 +163,20 @@ export default class GameView extends Phaser.GameObjects.Container {
         this.currHexRadius = radius / GAME.SIZE;
     }
 
-    private readjustHexes(): void {
-        console.log(this.currCenter, this.prevCenter);
-        const shift: Point = {
-            x: (this.currCenter.x - this.prevCenter.x) / 2,
-            y: (this.currCenter.y - this.prevCenter.y) / 2,
-        };
-        console.log(shift);
-        this.allHexes.forEach((hex, i) => {
-            const hexCenter = hex.getCenter();
-            if (i === 0) console.log(`${i}: ${hexCenter.x},${hexCenter.y}`);
-            hex.setPosition(hexCenter.x + shift.x, hexCenter.y + shift.y);
-            if (i === 0) console.log(`${i}: ${hex.getCenter().x},${hex.getCenter().y}`);
-        });
-    }
+    // private readjustHexes(): void {
+    //     console.log(this.currCenter, this.prevCenter);
+    //     const shift: Point = {
+    //         x: (this.currCenter.x - this.prevCenter.x) / 2,
+    //         y: (this.currCenter.y - this.prevCenter.y) / 2,
+    //     };
+    //     console.log(shift);
+    //     this.allHexes.forEach((hex, i) => {
+    //         const hexCenter = hex.getCenter();
+    //         if (i === 0) console.log(`${i}: ${hexCenter.x},${hexCenter.y}`);
+    //         hex.setPosition(hexCenter.x + shift.x, hexCenter.y + shift.y);
+    //         if (i === 0) console.log(`${i}: ${hex.getCenter().x},${hex.getCenter().y}`);
+    //     });
+    // }
 
     private draw(): void {
         let distance2CornerHex: number = this.currHexRadius * Math.sqrt(3);
