@@ -16,12 +16,13 @@ export enum EVENT {
     TILESSHIFTSTART = "eventTilesShiftStart",
     TILESSHIFTEND = "eventTilesShiftEnd",
     MOVEEND = "eventMoveEnd",
+    SHOWRESULTS = "eventShowResults",
 }
 
 export const NEW_TILES = [BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE ** 2, BASE_TILE ** 2];
 
 // a value to make to win the game
-export const GOAL = BASE_TILE ** 10;
+export const GOAL = BASE_TILE ** 4; //10;
 
 // direction vectors
 export const DIRECTION = {
@@ -54,4 +55,10 @@ export const MOVE_KEYS = [
     "Numpad5",
     "KeyD",
     "Numpad6",
+];
+
+export const UI_KEYS = [
+    "KeyF", // show end game popup without stopping the game
+    "KeyL", // lose game
+    "KeyV", // Win game
 ];

@@ -38,8 +38,7 @@ export class UIView extends Phaser.GameObjects.Container {
                     gameEvents.emit(GAME.EVENT.MOVE, keyboard.dir);
                     break;
                 case GAME.KEY.UI:
-                    // UI action
-                    gameEvents.emit(GAME.EVENT.UI, "KeyF");
+                    gameEvents.emit(GAME.EVENT.UI, keyboard.dir);
                     break;
             }
         });

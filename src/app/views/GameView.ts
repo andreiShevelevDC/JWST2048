@@ -36,7 +36,10 @@ export default class GameView extends Phaser.GameObjects.Container {
         this.allLabels.forEach((label, i) => {
             if (values[i] !== null) {
                 if (values[i] === 0) label.setText("");
-                else label.setValue(values[i]);
+                else {
+                    label.setValue(values[i]);
+                    label.setAlpha(1.0);
+                }
             }
         });
     }
@@ -58,7 +61,7 @@ export default class GameView extends Phaser.GameObjects.Container {
         this.setPosition(this.x + shift.x, this.y + shift.y);
     }
 
-    public animateMergedTiles(hexIndices: number[]): void {
+    public tweenMergedTiles(hexIndices: number[]): void {
         hexIndices.forEach((index) => {
             this.scene.tweens.add({
                 targets: this.allHexes[index],
@@ -81,7 +84,43 @@ export default class GameView extends Phaser.GameObjects.Container {
         });
     }
 
-    public animateShiftedTiles(hexIndices: number[], dirVector: number[]): void {
+    public tweenLoseGame(): void {
+        this.scene.tweens.add({
+            targets: this.allHexes,
+            alpha: 0.0,
+            scale: 0.1,
+            ease: "Sine.easeInExpo",
+            duration: 2000,
+            repeat: 0,
+            onComplete: () => {
+                this.gameEvents.emit(GAME.EVENT.SHOWRESULTS);
+            },
+        });
+    }
+
+    public tweenWinGame(): void {
+        this.scene.tweens.add({
+            targets: this.allHexes,
+            alpha: 0.8,
+            scale: 20,
+            ease: "Sine.easeInExpo",
+            duration: 1500,
+            repeat: 0,
+            onComplete: () => {
+                this.gameEvents.emit(GAME.EVENT.SHOWRESULTS);
+            },
+        });
+        this.scene.tweens.add({
+            targets: this.allLabels,
+            alpha: 0.0,
+            scale: 50,
+            ease: "Sine.easeInExpo",
+            duration: 800,
+            repeat: 0,
+        });
+    }
+
+    public tweenShiftedTiles(hexIndices: number[], dirVector: number[]): void {
         let i = hexIndices.length;
         let angle: number;
         switch (dirVector) {
@@ -108,23 +147,27 @@ export default class GameView extends Phaser.GameObjects.Container {
         }
 
         hexIndices.forEach((index) => {
+            const x0 = this.allLabels[index].getCenter().x;
+            const y0 = this.allLabels[index].getCenter().y;
             this.scene.tweens.add({
                 targets: this.allLabels[index],
-                x: this.allLabels[index].getCenter().x + this.currHexRadius * Math.cos((angle * Math.PI) / 180),
-                y: this.allLabels[index].getCenter().y + this.currHexRadius * Math.sin((angle * Math.PI) / 180),
+                x: x0 + this.currHexRadius * Math.cos((angle * Math.PI) / 180),
+                y: y0 + this.currHexRadius * Math.sin((angle * Math.PI) / 180),
+                alpha: 0,
                 ease: "Sine.easeInExpo",
-                duration: 300,
+                duration: 200,
                 repeat: 0,
                 onComplete: () => {
                     i--;
                     //console.log("Tiles left to move: ", i);
+                    this.allLabels[index].setPosition(x0, y0);
                     if (i === 0) this.gameEvents.emit(GAME.EVENT.TILESSHIFTEND);
                 },
             });
         });
     }
 
-    public animateNewTiles(hexIndices: number[]): void {
+    public tweenNewTiles(hexIndices: number[]): void {
         hexIndices.forEach((index) => {
             this.scene.tweens.add({
                 targets: this.allHexes[index],

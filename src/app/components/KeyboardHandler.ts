@@ -6,10 +6,10 @@ export default class KeyboardHandler {
 
     //public constructor() {}
 
-    public keyboardHandler(event: KeyboardEvent): { key: number; dir: number[] | null } {
+    public keyboardHandler(event: KeyboardEvent): { key: number; dir: number[] | string } {
         const currentTimestamp = Date.now();
         if (currentTimestamp - this.prevKeypressTimestamp < GAME.MOVE_KEYPRESS_DELAY)
-            return { key: GAME.KEY.UNASSIGNED, dir: null };
+            return { key: GAME.KEY.UNASSIGNED, dir: "" };
 
         //console.log(currentTimestamp - this.prevKeypressTimestamp);
         this.prevKeypressTimestamp = currentTimestamp;
@@ -41,12 +41,14 @@ export default class KeyboardHandler {
                 return { key: GAME.KEY.MOVE, dir: GAME.DIRECTION.D };
 
             // test popup
-            case "KeyF":
-                return { key: GAME.KEY.UI, dir: null };
+            case GAME.UI_KEYS[0]:
+            case GAME.UI_KEYS[1]:
+            case GAME.UI_KEYS[2]:
+                return { key: GAME.KEY.UI, dir: this.keyCode };
 
             default:
                 //console.log("Unhandled key pressed: ", this.keyCode);
-                return { key: GAME.KEY.UNASSIGNED, dir: null };
+                return { key: GAME.KEY.UNASSIGNED, dir: "" };
         }
     }
 
