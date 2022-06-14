@@ -26,7 +26,7 @@ export default class LogicComponent {
     ];
     private field: Cell[] = [];
     private currDirVector: number[];
-    private currMergedTilesIndices: number[];
+    private currMergedTilesIndices: number[] = [];
 
     public constructor(gameEvents: Phaser.Events.EventEmitter) {
         this.gameEvents = gameEvents;
@@ -66,7 +66,6 @@ export default class LogicComponent {
     }
 
     public startMove(dirVector: number[]): void {
-        this.currMergedTilesIndices = [];
         this.currDirVector = dirVector;
         const shiftedTilesIndices = this.shiftStart();
         if (shiftedTilesIndices.length > 0)
@@ -87,6 +86,7 @@ export default class LogicComponent {
             });
         }
         this.gameEvents.emit(GAME.EVENT.MOVEEND, this.currMergedTilesIndices);
+        this.currMergedTilesIndices = [];
     }
 
     // check if the tile with goal value has been made

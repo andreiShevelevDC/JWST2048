@@ -93,6 +93,10 @@ export default class MainScene extends Phaser.Scene {
                 this.gameState = GAME.STATE.PAUSE;
                 this.gameView.tweenWinGame();
                 break;
+            case GAME.UI_KEYS[3]:
+            case GAME.UI_KEYS[4]:
+            case GAME.UI_KEYS[5]:
+                this.gameView.changeVideo(key);
         }
     }
 
@@ -111,7 +115,8 @@ export default class MainScene extends Phaser.Scene {
     }
 
     private endMove(mergedTilesIndices: number[]): void {
-        this.gameView.tweenMergedTiles(mergedTilesIndices);
+        if (mergedTilesIndices.length > 0) this.gameView.tweenMergedTiles(mergedTilesIndices);
+        this.uiView.playMoveSound();
         this.moveCounter++;
         if (this.canContinueGame()) {
             const newTiles: number[] = this.logic.addNewTiles(1, GAME.NEW_TILES);

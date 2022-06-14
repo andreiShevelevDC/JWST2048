@@ -7,6 +7,12 @@ type Point = {
     y: number;
 };
 
+type HexIdleAnimation = {
+    index: number;
+    alphaLow: number;
+    duration: number;
+};
+
 export default class GameView extends Phaser.GameObjects.Container {
     private readonly isPointyHexes = false; // cause JWST use flat top hexes
     private readonly partOfShortSizeUsed = 0.9;
@@ -18,12 +24,17 @@ export default class GameView extends Phaser.GameObjects.Container {
     private allHexes: Phaser.GameObjects.Polygon[] = [];
     private readonly allLabels: HexLabelComponent[] = [];
     private gameEvents: Phaser.Events.EventEmitter;
+    private videoBacks: Phaser.GameObjects.Video[] = [];
+    private currVideoNum: number;
 
     public constructor(scene: Phaser.Scene) {
         super(scene);
         this.setCoordinates();
+        this.showVideoBack();
+        //this.updateVideoBackPosition();
         this.draw();
         //this.updateLabelsData();
+        this.runIdleAnimation(true);
     }
 
     public registerEventHandler(gameEvents: Phaser.Events.EventEmitter): void {
@@ -46,6 +57,7 @@ export default class GameView extends Phaser.GameObjects.Container {
 
     public updatePosition(): void {
         this.setCoordinates();
+        this.updateVideoBackPosition();
         //this.readjustHexes();
         //this.updateLabels();
         // console.log("Scale: ", this.scale);
@@ -196,6 +208,27 @@ export default class GameView extends Phaser.GameObjects.Container {
         });
     }
 
+    public changeVideo(key: string): void {
+        switch (key) {
+            case GAME.UI_KEYS[3]: // change back
+                if (!this.videoBacks[this.currVideoNum].isPlaying()) console.log("Curr video is not playing");
+                this.videoBacks[this.currVideoNum].setVisible(false).stop();
+                if (this.currVideoNum === this.videoBacks.length - 1) this.currVideoNum = 0;
+                else this.currVideoNum++;
+                this.updateVideoBackPosition();
+                this.videoBacks[this.currVideoNum].setVisible(true).play();
+                break;
+            case GAME.UI_KEYS[4]: // alpha -
+                if (this.videoBacks[this.currVideoNum].alpha >= 0.2)
+                    this.videoBacks[this.currVideoNum].setAlpha(this.videoBacks[this.currVideoNum].alpha - 0.2);
+                break;
+            case GAME.UI_KEYS[5]: // alpha +
+                if (this.videoBacks[this.currVideoNum].alpha <= 0.8)
+                    this.videoBacks[this.currVideoNum].setAlpha(this.videoBacks[this.currVideoNum].alpha + 0.2);
+                break;
+        }
+    }
+
     private setCoordinates(): void {
         this.prevCenter = this.currCenter;
         this.prevHexRadius = this.currHexRadius;
@@ -220,6 +253,65 @@ export default class GameView extends Phaser.GameObjects.Container {
     //         if (i === 0) console.log(`${i}: ${hex.getCenter().x},${hex.getCenter().y}`);
     //     });
     // }
+
+    private idleAnimation(idleHexes: HexIdleAnimation[]): void {
+        for (let i = 0; i < idleHexes.length; i++) {
+            this.scene.tweens.add({
+                targets: this.allHexes[idleHexes[i].index],
+                alpha: idleHexes[i].alphaLow,
+                ease: "Sine.easeInExpo",
+                duration: idleHexes[i].duration,
+                repeat: 0,
+                yoyo: true,
+                onComplete: () => {
+                    this.runIdleAnimation(false);
+                },
+            });
+        }
+    }
+
+    private runIdleAnimation(isFirst: boolean): void {
+        const clamp = (num: number, min: number, max: number): number => Math.min(Math.max(num, min), max);
+
+        let simHexNumber = 1;
+        if (isFirst) simHexNumber = 10;
+        const idleHexes: HexIdleAnimation[] = [];
+        let idleHex: HexIdleAnimation;
+        let alpha: number;
+
+        for (let i = 0; i < simHexNumber; i++) {
+            alpha = Math.random();
+            alpha = clamp(alpha, 0.8, 1.0);
+            idleHex = {
+                index: Math.floor(Math.random() * this.allHexes.length),
+                alphaLow: alpha < 0.4 ? alpha * 2 : alpha,
+                duration: Math.floor(Math.random() * 7000) + 3000,
+            };
+            //console.log(idleHex.alphaLow);
+            idleHexes.push(idleHex);
+        }
+        this.idleAnimation(idleHexes);
+    }
+
+    private showVideoBack(): void {
+        let video: Phaser.GameObjects.Video;
+        let videoName: string;
+        for (let i = 1; i <= 5; i++) {
+            videoName = "video_back" + i.toString();
+            //console.log(videoName, " - is this video in cache? ", this.scene.game.cache.video.has(videoName));
+            video = this.scene.add.video(0, 0, videoName);
+            video.setVisible(false).setOrigin(0.5, 0.5).setLoop(true);
+            this.add(video);
+            this.videoBacks.push(video);
+        }
+
+        this.currVideoNum = Math.floor(Math.random() * this.videoBacks.length);
+
+        this.updateVideoBackPosition();
+
+        this.videoBacks[this.currVideoNum].setVisible(true).play();
+        //console.log(this.videoBacks[this.currVideoNum].isPlaying(), this.videoBacks[this.currVideoNum].visible);
+    }
 
     private draw(): void {
         let distance2CornerHex: number = this.currHexRadius * Math.sqrt(3);
@@ -269,6 +361,28 @@ export default class GameView extends Phaser.GameObjects.Container {
             this.allLabels[i].setPosition(hex.x, hex.y);
             this.allLabels[i].setFontSizeOnHexSize(this.currHexRadius);
         });
+    }
+
+    private updateVideoBackPosition(): void {
+        const { width, height } = this.scene.scale.gameSize;
+        const wVideo = this.videoBacks[this.currVideoNum].width;
+        const hVideo = this.videoBacks[this.currVideoNum].height;
+        //console.log(`${width}/${height} - ${wVideo}/${hVideo}`);
+        const wScale = width / wVideo;
+        const hScale = height / hVideo;
+        const biggerScale = wScale > hScale ? wScale : hScale;
+        //console.log(`${biggerScale}`);
+        //this.currVideoBack.setScale(biggerScale);
+        this.videoBacks[this.currVideoNum].setDisplaySize(
+            this.videoBacks[this.currVideoNum].width * biggerScale,
+            this.videoBacks[this.currVideoNum].height * biggerScale,
+        );
+        // console.log(
+        //     "DisplaySize: ",
+        //     this.videoBacks[this.currVideoNum].displayWidth,
+        //     this.videoBacks[this.currVideoNum].displayHeight,
+        // );
+        this.videoBacks[this.currVideoNum].setPosition(this.currCenter.x, this.currCenter.y);
     }
 
     private createLabels(): void {

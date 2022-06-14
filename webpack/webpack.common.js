@@ -52,6 +52,7 @@ module.exports = {
                 { from: "./src/assets/spines", to: "assets/spines" },
                 { from: "./src/assets/uncompressed", to: "assets/uncompressed" },
                 { from: "./src/assets/spriteSheets", to: "assets/spriteSheets" },
+                { from: "./src/assets/video_back", to: "assets/video_back" },
             ],
         }),
     ],

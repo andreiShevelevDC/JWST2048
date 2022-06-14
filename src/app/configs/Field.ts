@@ -8,7 +8,7 @@ export const JWST = {
     aHexFill: 1.0,
     wLine: 2,
     cLine: 0x666666,
-    aLine: 0.4,
+    aLine: 0.2,
 };
 
 export const JWST_LABEL: Phaser.Types.GameObjects.Text.TextStyle = {

@@ -61,4 +61,7 @@ export const UI_KEYS = [
     "KeyF", // show end game popup without stopping the game
     "KeyL", // lose game
     "KeyV", // Win game
+    "ArrowUp", // next video back
+    "ArrowLeft", // less video back alpha
+    "ArrowRight", // more video back alpha
 ];

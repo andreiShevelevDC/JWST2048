@@ -5,6 +5,7 @@ import CounterComponent from "../components/CounterComponent";
 export class UIView extends Phaser.GameObjects.Container {
     public keyboard: KeyboardHandler;
     private counter: CounterComponent;
+    private moveSound: any;
 
     public constructor(public scene) {
         super(scene);
@@ -48,9 +49,57 @@ export class UIView extends Phaser.GameObjects.Container {
         this.counter.updatePosition();
     }
 
+    public playMoveSound(): void {
+        this.moveSound.play();
+    }
+
     private init(): void {
         this.keyboard = new KeyboardHandler();
         this.initCounter();
+        this.playBkgMusic();
+        this.initMoveSound();
+    }
+
+    private initMoveSound(): void {
+        this.moveSound = this.scene.sound.add("magic-sound-1.wav", {
+            mute: false,
+            volume: 0.2,
+            rate: 1.0,
+            detune: 0,
+            seek: 0,
+            loop: false,
+            delay: 10,
+        });
+    }
+
+    private playBkgMusic(): void {
+        //console.log(this.scene.game.cache.audio.entries);
+        const music1 = this.scene.sound.add("essesq_-_With_These_Wings.mp3", {
+            mute: false,
+            volume: 0.5,
+            rate: 0.85,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 2000,
+        });
+        const music2 = this.scene.sound.add("Light-Years_V001_Looping.mp3", {
+            mute: false,
+            volume: 0.5,
+            rate: 0.85,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 2000,
+        });
+        const rand = Math.floor(Math.random() * 2);
+        switch (rand) {
+            case 0:
+                music1.play();
+                break;
+            case 1:
+                music2.play();
+        }
     }
 
     private initCounter(): void {

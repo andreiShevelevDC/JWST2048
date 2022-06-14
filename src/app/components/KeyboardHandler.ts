@@ -44,6 +44,9 @@ export default class KeyboardHandler {
             case GAME.UI_KEYS[0]:
             case GAME.UI_KEYS[1]:
             case GAME.UI_KEYS[2]:
+            case GAME.UI_KEYS[3]:
+            case GAME.UI_KEYS[4]:
+            case GAME.UI_KEYS[5]:
                 return { key: GAME.KEY.UI, dir: this.keyCode };
 
             default:
