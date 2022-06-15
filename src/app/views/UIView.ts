@@ -1,15 +1,19 @@
 import * as GAME from "../configs/Game";
 import KeyboardHandler from "../components/KeyboardHandler";
+import TouchHandler from "../components/TouchHandler";
 import CounterComponent from "../components/CounterComponent";
 
 export class UIView extends Phaser.GameObjects.Container {
     public keyboard: KeyboardHandler;
     private counter: CounterComponent;
     private moveSound: any;
+    private gameEvents: Phaser.Events.EventEmitter;
 
-    public constructor(public scene) {
+    public constructor(public scene, eventEmitter: Phaser.Events.EventEmitter) {
         super(scene);
+        this.gameEvents = eventEmitter;
         this.init();
+        new TouchHandler(scene, eventEmitter);
     }
 
     public updateCounter(newValue: number): void {
@@ -28,7 +32,7 @@ export class UIView extends Phaser.GameObjects.Container {
 
     public getCounter = (): number => this.counter.getValue();
 
-    public registerInputHandlers(gameEvents: Phaser.Events.EventEmitter): void {
+    public registerInputHandlers(): void {
         document.addEventListener(GAME.KEYBOARD_EVENT, (event) => {
             const keyboard = this.keyboard.keyboardHandler(event);
             switch (keyboard.key) {
@@ -36,10 +40,10 @@ export class UIView extends Phaser.GameObjects.Container {
                     //TODO: show hotkeys help popup
                     break;
                 case GAME.KEY.MOVE:
-                    gameEvents.emit(GAME.EVENT.MOVE, keyboard.dir);
+                    this.gameEvents.emit(GAME.EVENT.MOVE, keyboard.dir);
                     break;
                 case GAME.KEY.UI:
-                    gameEvents.emit(GAME.EVENT.UI, keyboard.dir);
+                    this.gameEvents.emit(GAME.EVENT.UI, keyboard.dir);
                     break;
             }
         });

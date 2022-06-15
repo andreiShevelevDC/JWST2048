@@ -25,6 +25,7 @@ export default class MainScene extends Phaser.Scene {
 
     private init(): void {
         //this.initServices();
+        this.gameEvents = new Phaser.Events.EventEmitter();
         this.initGameView();
         this.initUIView();
         this.initForegroundView();
@@ -41,7 +42,7 @@ export default class MainScene extends Phaser.Scene {
     }
 
     private initUIView(): void {
-        this.uiView = new UIView(this);
+        this.uiView = new UIView(this, this.gameEvents);
         this.add.existing(this.uiView);
     }
 
@@ -54,7 +55,6 @@ export default class MainScene extends Phaser.Scene {
     }
 
     private makeNewGame(): void {
-        this.gameEvents = new Phaser.Events.EventEmitter();
         this.gameEvents.on(GAME.EVENT.TILESSHIFTSTART, (shiftedTiles: number[], dirVector: number[]) => {
             this.movingTiles = shiftedTiles;
             this.gameView.tweenShiftedTiles(shiftedTiles, dirVector);
@@ -65,14 +65,13 @@ export default class MainScene extends Phaser.Scene {
         this.gameEvents.on(GAME.EVENT.SCOREUPDATE, (newTilesSum: number) => this.uiView.updateCounter(newTilesSum));
         this.gameEvents.on(GAME.EVENT.UI, (key: string) => this.uiEventHandler(key));
         this.gameEvents.on(GAME.EVENT.SHOWRESULTS, () => this.showResults());
-        this.uiView.registerInputHandlers(this.gameEvents);
+        this.uiView.registerInputHandlers();
         this.gameView.registerEventHandler(this.gameEvents);
         this.scale.on("resize", () => {
             this.gameView.updatePosition();
             this.uiView.updatePosition();
             this.foregroundView.updatePosition();
         });
-
         this.startGame();
     }
 
