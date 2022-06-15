@@ -33,21 +33,30 @@ export default class TouchHandler {
             if (dX < 0 && dY > 0) dir = GAME.DIRECTION.A;
         }
         if (dir.length === 2) this.gameEvents.emit(GAME.EVENT.MOVE, dir);
-        console.log(`SWIPE: ${dX} / ${dY} = ${dir}`);
+        //console.log(`SWIPE: ${dX} / ${dY} = ${dir}`);
     }
 
     private touchStart(pointer: Phaser.Input.Pointer): void {
-        //console.log("DOWN ", pointer);
         this.pointerDown = { x: pointer.x, y: pointer.y };
     }
 
     private touchEnd(pointerUp: Phaser.Input.Pointer): void {
-        //console.log("UP ", pointer);
-        console.log(`MOVE dX: ${pointerUp.x - this.pointerDown.x}, dY: ${pointerUp.y - this.pointerDown.y}`);
+        //console.log(`MOVE dX: ${pointerUp.x - this.pointerDown.x}, dY: ${pointerUp.y - this.pointerDown.y}`);
+        const height = this.scene.scale.gameSize.height;
+        if (pointerUp.y > height - GAME.TOUCH_BAR_WIDTH && this.pointerDown.y > height - GAME.TOUCH_BAR_WIDTH)
+            this.backVideoControl(pointerUp.x);
         this.handleSwipe(pointerUp.x - this.pointerDown.x, pointerUp.y - this.pointerDown.y);
     }
 
-    private touchMove(pointer: Phaser.Input.Pointer): void {
-        console.log(`MOVE dX: ${pointer.upX - pointer.downX}, dY: ${pointer.upY - pointer.downY}`);
+    // private touchMove(pointer: Phaser.Input.Pointer): void {
+    //     console.log(`MOVE dX: ${pointer.upX - pointer.downX}, dY: ${pointer.upY - pointer.downY}`);
+    // }
+
+    // MVP & debug
+    private backVideoControl(pointerUpX: number): void {
+        const width = this.scene.scale.gameSize.width;
+        if (pointerUpX < GAME.TOUCH_BAR_WIDTH) this.gameEvents.emit(GAME.EVENT.UI, GAME.UI_KEYS[4]);
+        else if (pointerUpX > width - GAME.TOUCH_BAR_WIDTH) this.gameEvents.emit(GAME.EVENT.UI, GAME.UI_KEYS[5]);
+        else this.gameEvents.emit(GAME.EVENT.UI, GAME.UI_KEYS[3]);
     }
 }

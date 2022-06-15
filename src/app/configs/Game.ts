@@ -65,3 +65,5 @@ export const UI_KEYS = [
     "ArrowLeft", // less video back alpha
     "ArrowRight", // more video back alpha
 ];
+
+export const TOUCH_BAR_WIDTH = 100;

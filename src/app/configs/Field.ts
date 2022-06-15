@@ -7,7 +7,7 @@ export const JWST = {
     cHexFill: 0xfccc00,
     aHexFill: 1.0,
     wLine: 2,
-    cLine: 0x666666,
+    cLine: 0x333333,
     aLine: 0.2,
 };
 

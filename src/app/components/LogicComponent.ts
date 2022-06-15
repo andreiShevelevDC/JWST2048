@@ -179,7 +179,8 @@ export default class LogicComponent {
                 cell.value !== GAME.CELL_DISABLED &&
                 neighbour &&
                 neighbour.cell.value === cell.value &&
-                !neighbour.cell.merged
+                !neighbour.cell.merged &&
+                !cell.merged
             ) {
                 neighbour.cell.value = cell.value * GAME.BASE_TILE;
                 neighbour.cell.merged = true;
