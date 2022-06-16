@@ -120,7 +120,7 @@ export default class LogicComponent {
     private shift(): GAME.ShiftedPair[] {
         let neighbour: { cell: Cell; index: number } | null;
         const shiftedPairs: GAME.ShiftedPair[] = [];
-        let shiftedPair: GAME.ShiftedPair;
+        const shiftedPair: GAME.ShiftedPair = { start: -1, finish: -1 };
 
         this.field.forEach((cell, index) => {
             if (cell.value !== GAME.CELL_EMPTY && cell.value !== GAME.CELL_DISABLED) {

@@ -26,9 +26,12 @@ export default class GameView extends Phaser.GameObjects.Container {
     private gameEvents: Phaser.Events.EventEmitter;
     private videoBacks: Phaser.GameObjects.Video[] = [];
     private currVideoNum: number;
+    private tweenStages = 3;
+    //private showMoveTL = Phaser.Tweens.Timeline;
 
-    public constructor(scene: Phaser.Scene) {
+    public constructor(scene: Phaser.Scene, eventsEmitter: Phaser.Events.EventEmitter) {
         super(scene);
+        this.gameEvents = eventsEmitter;
         this.setCoordinates();
         this.showVideoBack();
         //this.updateVideoBackPosition();
@@ -37,8 +40,15 @@ export default class GameView extends Phaser.GameObjects.Container {
         this.runIdleAnimation(true);
     }
 
-    public registerEventHandler(gameEvents: Phaser.Events.EventEmitter): void {
-        this.gameEvents = gameEvents;
+    public showMoveResult(result: GAME.MoveResults, values: number[]): void {
+        const showMoveTL = this.scene.tweens.createTimeline({
+            onComplete: () => this.updateLabelsData(values),
+        });
+        //this.showMoveTL = this.scene.tweens.createTimeline();
+        this.tweenShiftedTiles(showMoveTL, result.shifted);
+        this.tweenMergedTiles(showMoveTL, result.merged);
+        this.tweenNewTiles(showMoveTL, result.new);
+        showMoveTL.play();
     }
 
     // should receive array of strings with new labels' values
@@ -73,24 +83,26 @@ export default class GameView extends Phaser.GameObjects.Container {
         this.setPosition(this.x + shift.x, this.y + shift.y);
     }
 
-    public tweenMergedTiles(hexIndices: number[]): void {
+    public tweenMergedTiles(timeLine: Phaser.Tweens.Timeline, hexIndices: number[]): void {
         hexIndices.forEach((index) => {
-            this.scene.tweens.add({
+            timeLine.add({
                 targets: this.allHexes[index],
                 scale: 1.2,
                 ease: "Sine.easeInOut",
                 duration: 300,
                 repeat: 0,
                 yoyo: true,
+                offset: 0,
             });
             this.allLabels[index].setStyle({ color: "#ff0000" });
-            this.scene.tweens.add({
+            timeLine.add({
                 targets: this.allLabels[index],
                 scale: 1.7,
-                ease: "Sine.easeInExpo",
+                ease: "Expo.easeIn",
                 duration: 300,
                 repeat: 0,
                 yoyo: true,
+                offset: 0,
                 onComplete: () => this.allLabels[index].setStyle({ color: THEME.JWST_LABEL.color }),
             });
         });
@@ -101,7 +113,7 @@ export default class GameView extends Phaser.GameObjects.Container {
             targets: this.allHexes,
             alpha: 0.0,
             scale: 0.1,
-            ease: "Sine.easeInExpo",
+            ease: "Expo.easeIn",
             duration: 2000,
             repeat: 0,
             onComplete: () => {
@@ -115,7 +127,7 @@ export default class GameView extends Phaser.GameObjects.Container {
             targets: this.allHexes,
             alpha: 0.8,
             scale: 20,
-            ease: "Sine.easeInExpo",
+            ease: "Expo.easeIn",
             duration: 1500,
             repeat: 0,
             onComplete: () => {
@@ -126,84 +138,84 @@ export default class GameView extends Phaser.GameObjects.Container {
             targets: this.allLabels,
             alpha: 0.0,
             scale: 50,
-            ease: "Sine.easeInExpo",
+            ease: "Expo.easeIn",
             duration: 800,
             repeat: 0,
         });
     }
 
-    public tweenShiftedTiles(hexIndices: number[], dirVector: number[]): void {
-        let i = hexIndices.length;
-        let angle: number;
-        switch (dirVector) {
-            case GAME.DIRECTION.Q:
-                angle = -150;
-                break;
-            case GAME.DIRECTION.W:
-                angle = -90;
-                break;
-            case GAME.DIRECTION.E:
-                angle = -30;
-                break;
-            case GAME.DIRECTION.A:
-                angle = 170;
-                break;
-            case GAME.DIRECTION.S:
-                angle = 90;
-                break;
-            case GAME.DIRECTION.D:
-                angle = 30;
-                break;
-            default:
-                angle = 0;
-        }
+    public tweenShiftedTiles(timeLine: Phaser.Tweens.Timeline, tiles: GAME.ShiftedPair[]): void {
+        // let angle: number;
+        // switch (dirVector) {
+        //     case GAME.DIRECTION.Q:
+        //         angle = -150;
+        //         break;
+        //     case GAME.DIRECTION.W:
+        //         angle = -90;
+        //         break;
+        //     case GAME.DIRECTION.E:
+        //         angle = -30;
+        //         break;
+        //     case GAME.DIRECTION.A:
+        //         angle = 170;
+        //         break;
+        //     case GAME.DIRECTION.S:
+        //         angle = 90;
+        //         break;
+        //     case GAME.DIRECTION.D:
+        //         angle = 30;
+        //         break;
+        //     default:
+        //         angle = 0;
+        // }
 
-        hexIndices.forEach((index) => {
-            const x0 = this.allLabels[index].getCenter().x;
-            const y0 = this.allLabels[index].getCenter().y;
-            this.scene.tweens.add({
-                targets: this.allLabels[index],
-                x: x0 + this.currHexRadius * Math.cos((angle * Math.PI) / 180),
-                y: y0 + this.currHexRadius * Math.sin((angle * Math.PI) / 180),
+        tiles.forEach((pair) => {
+            const x0 = this.allLabels[pair.start].getCenter().x;
+            const y0 = this.allLabels[pair.start].getCenter().y;
+            const x1 = this.allLabels[pair.finish].getCenter().x;
+            const y1 = this.allLabels[pair.finish].getCenter().y;
+            timeLine.add({
+                targets: this.allLabels[pair.start],
+                x: { from: x0, to: x1 },
+                y: { from: y0, to: y1 },
                 alpha: 0,
-                ease: "Sine.easeInExpo",
-                duration: 200,
+                ease: "Expo.easeIn",
+                duration: 300,
                 repeat: 0,
-                onComplete: () => {
-                    i--;
-                    //console.log("Tiles left to move: ", i);
-                    this.allLabels[index].setPosition(x0, y0);
-                    if (i === 0) this.gameEvents.emit(GAME.EVENT.TILESSHIFTEND);
-                },
+                offset: 0,
+                onComplete: () => this.allLabels[pair.start].setPosition(x0, y0),
             });
         });
     }
 
-    public tweenNewTiles(hexIndices: number[]): void {
+    public tweenNewTiles(timeLine: Phaser.Tweens.Timeline, hexIndices: number[]): void {
         hexIndices.forEach((index) => {
-            this.scene.tweens.add({
+            timeLine.add({
                 targets: this.allHexes[index],
                 scale: 0.8,
                 ease: "Sine.easeInOut",
                 duration: 300,
                 repeat: 0,
                 yoyo: true,
+                offset: 0,
             });
             this.allLabels[index].setAlpha(0.0);
-            this.scene.tweens.add({
+            timeLine.add({
                 targets: this.allLabels[index],
                 alpha: 1.0,
-                ease: "Sine.easeInExpo",
+                ease: "Expo.easeIn",
                 duration: 500,
                 repeat: 0,
+                offset: 0,
             });
             this.allLabels[index].setScale(0.1);
-            this.scene.tweens.add({
+            timeLine.add({
                 targets: this.allLabels[index],
                 scale: 1.0,
-                ease: "Sine.easeInExpo",
+                ease: "Expo.easeIn",
                 duration: 500,
                 repeat: 0,
+                offset: 0,
             });
         });
     }

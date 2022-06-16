@@ -35,7 +35,7 @@ export default class MainScene extends Phaser.Scene {
     }
 
     private initGameView(): void {
-        this.gameView = new GameView(this);
+        this.gameView = new GameView(this, this.gameEvents);
         // this.gameView.on("lap", () => {
         //     this.uiView.updateCounter();
         // });
@@ -56,18 +56,16 @@ export default class MainScene extends Phaser.Scene {
     }
 
     private handleEvents(): void {
-        this.gameEvents.on(GAME.EVENT.TILESSHIFTSTART, (shiftedTiles: number[], dirVector: number[]) => {
-            this.movingTiles = shiftedTiles;
-            this.gameView.tweenShiftedTiles(shiftedTiles, dirVector);
-        });
-        this.gameEvents.on(GAME.EVENT.TILESSHIFTEND, () => this.logic.shiftEnd(this.movingTiles));
+        // this.gameEvents.on(GAME.EVENT.TILESSHIFTSTART, (shiftedTiles: number[], dirVector: number[]) => {
+        //     this.movingTiles = shiftedTiles;
+        //     this.gameView.tweenShiftedTiles(shiftedTiles, dirVector);
+        // });
+        // this.gameEvents.on(GAME.EVENT.TILESSHIFTEND, () => this.logic.shiftEnd(this.movingTiles));
         this.gameEvents.on(GAME.EVENT.MOVE, this.makeMove, this);
-        this.gameEvents.on(GAME.EVENT.MOVEEND, this.endMove, this);
-        this.gameEvents.on(GAME.EVENT.SCOREUPDATE, (newTilesSum: number) => this.uiView.updateCounter(newTilesSum));
+        //this.gameEvents.on(GAME.EVENT.SCOREUPDATE, (newTilesSum: number) => this.uiView.updateCounter(newTilesSum));
         this.gameEvents.on(GAME.EVENT.UI, (key: string) => this.uiEventHandler(key));
         this.gameEvents.on(GAME.EVENT.SHOWRESULTS, () => this.showResults());
         this.uiView.registerInputHandlers();
-        this.gameView.registerEventHandler(this.gameEvents);
         this.scale.on("resize", () => {
             this.gameView.updatePosition();
             this.uiView.updatePosition();
@@ -101,7 +99,6 @@ export default class MainScene extends Phaser.Scene {
 
     private startGame(): void {
         this.logic = new LogicComponent(this.gameEvents);
-        //this.gameView.updateLabelsData(this.logic.getFieldValues());
         this.moveCounter = 0;
         this.uiView.updateCounter(0);
         this.gameState = GAME.STATE.WAIT;
@@ -114,7 +111,9 @@ export default class MainScene extends Phaser.Scene {
             const result = this.logic.move(true, dir);
             this.uiView.playMoveSound();
             this.moveCounter++;
-            this.gameView.showMoveResult(result);
+            console.log(`${this.moveCounter} - ${result.shifted}/${result.merged}/${result.new}`);
+            this.gameView.showMoveResult(result, this.logic.getFieldValues());
+            //this.gameView.updateLabelsData(this.logic.getFieldValues());
             if (this.logic.canContinueGame()) {
                 this.gameState = GAME.STATE.WAIT;
             } else {
