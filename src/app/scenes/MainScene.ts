@@ -15,7 +15,7 @@ export default class MainScene extends Phaser.Scene {
     private gameEvents: Phaser.Events.EventEmitter;
 
     private logic: LogicComponent;
-    private gameState = GAME.STATE.PAUSE;
+    private gameState = GAME.STATE.ABSENT;
     private moveCounter: number;
     private movingTiles: number[];
 
@@ -30,7 +30,8 @@ export default class MainScene extends Phaser.Scene {
         this.initUIView();
         this.initForegroundView();
         //if (process.env.NODE_ENV !== "production") this.initStatJS();
-        this.makeNewGame();
+        this.handleEvents();
+        this.startGame();
     }
 
     private initGameView(): void {
@@ -54,13 +55,13 @@ export default class MainScene extends Phaser.Scene {
         this.add.existing(this.foregroundView);
     }
 
-    private makeNewGame(): void {
+    private handleEvents(): void {
         this.gameEvents.on(GAME.EVENT.TILESSHIFTSTART, (shiftedTiles: number[], dirVector: number[]) => {
             this.movingTiles = shiftedTiles;
             this.gameView.tweenShiftedTiles(shiftedTiles, dirVector);
         });
         this.gameEvents.on(GAME.EVENT.TILESSHIFTEND, () => this.logic.shiftEnd(this.movingTiles));
-        this.gameEvents.on(GAME.EVENT.MOVE, this.startMove, this);
+        this.gameEvents.on(GAME.EVENT.MOVE, this.makeMove, this);
         this.gameEvents.on(GAME.EVENT.MOVEEND, this.endMove, this);
         this.gameEvents.on(GAME.EVENT.SCOREUPDATE, (newTilesSum: number) => this.uiView.updateCounter(newTilesSum));
         this.gameEvents.on(GAME.EVENT.UI, (key: string) => this.uiEventHandler(key));
@@ -72,7 +73,6 @@ export default class MainScene extends Phaser.Scene {
             this.uiView.updatePosition();
             this.foregroundView.updatePosition();
         });
-        this.startGame();
     }
 
     private uiEventHandler(key: string): void {
@@ -101,29 +101,26 @@ export default class MainScene extends Phaser.Scene {
 
     private startGame(): void {
         this.logic = new LogicComponent(this.gameEvents);
-        this.logic.addNewTiles(1, GAME.NEW_TILES);
-        this.gameView.updateLabelsData(this.logic.getFieldValues());
+        //this.gameView.updateLabelsData(this.logic.getFieldValues());
         this.moveCounter = 0;
         this.uiView.updateCounter(0);
-        this.gameState = GAME.STATE.PLAYING;
+        this.gameState = GAME.STATE.WAIT;
+        this.makeMove(null);
     }
 
-    private startMove(dir: number[]): void {
-        if (this.gameState === GAME.STATE.PLAYING) this.logic.startMove(dir);
-        else console.log(" START A NEW GAME");
-    }
-
-    private endMove(mergedTilesIndices: number[]): void {
-        if (mergedTilesIndices.length > 0) this.gameView.tweenMergedTiles(mergedTilesIndices);
-        this.uiView.playMoveSound();
-        this.moveCounter++;
-        if (this.canContinueGame()) {
-            const newTiles: number[] = this.logic.addNewTiles(1, GAME.NEW_TILES);
-            this.gameView.updateLabelsData(this.logic.getFieldValues());
-            this.gameView.tweenNewTiles(newTiles);
-        } else {
+    private makeMove(dir: number[] | null): void {
+        if (this.gameState === GAME.STATE.WAIT) {
             this.gameState = GAME.STATE.PAUSE;
-            this.showResults();
+            const result = this.logic.move(true, dir);
+            this.uiView.playMoveSound();
+            this.moveCounter++;
+            this.gameView.showMoveResult(result);
+            if (this.logic.canContinueGame()) {
+                this.gameState = GAME.STATE.WAIT;
+            } else {
+                this.gameState = GAME.STATE.ABSENT;
+                this.showResults();
+            }
         }
     }
 
@@ -136,13 +133,11 @@ export default class MainScene extends Phaser.Scene {
             console.log(" Game is WON: The goal has been achieved.");
             return;
         }
-        console.log(` Game is lost: no empty tiles left (${this.logic.getEmptyCellsNum()}).`);
+        console.log(` Game is lost: no empty tiles left.`);
 
         // Ask for a new game
-        //makeNewGame(newGameSizeIndex);
+        //startNewGame();
     }
-
-    private canContinueGame = (): boolean => !(this.logic.checkGoal(GAME.GOAL) || this.logic.getEmptyCellsNum() === 0);
 
     // private initServices(): void {
     //     const popupService = IocContext.DefaultInstance.get(PopupService);

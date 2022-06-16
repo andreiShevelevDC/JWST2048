@@ -5,8 +5,21 @@ export const CELL_DISABLED = -1; // for field configurations with gaps or out of
 export const BASE_TILE = 2;
 
 export enum STATE {
-    PAUSE,
-    PLAYING,
+    ABSENT, // finished or not started, no input allowed
+    PAUSE, // paused for animation or showing menu, no input allowed
+    WAIT, // waiting for input
+}
+
+// for saving shifted pairs
+export interface ShiftedPair {
+    start: number;
+    finish: number;
+}
+
+export interface MoveResults {
+    shifted: ShiftedPair[]; // pairs of indices
+    merged: number[]; // merged tiles indices
+    new: number[]; // new tiles indices
 }
 
 export enum EVENT {
