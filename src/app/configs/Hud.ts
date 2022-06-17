@@ -16,7 +16,7 @@ export const SCORE_BACK_SIZE_Y = 40;
 // TODO: move SCORE_BACK_SIZE_X & Y inside SCORE_BACK
 export const SCORE_BACK = {
     cFill: 0x000000,
-    aFill: 0.0,
+    aFill: 0.4,
     wStroke: 2,
     cStroke: 0xfccc00,
     aStroke: 1.0,

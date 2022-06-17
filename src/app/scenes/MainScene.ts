@@ -62,6 +62,7 @@ export default class MainScene extends Phaser.Scene {
         // });
         // this.gameEvents.on(GAME.EVENT.TILESSHIFTEND, () => this.logic.shiftEnd(this.movingTiles));
         this.gameEvents.on(GAME.EVENT.MOVE, this.makeMove, this);
+        this.gameEvents.on(GAME.EVENT.MOVEEND, this.finishMove, this);
         //this.gameEvents.on(GAME.EVENT.SCOREUPDATE, (newTilesSum: number) => this.uiView.updateCounter(newTilesSum));
         this.gameEvents.on(GAME.EVENT.UI, (key: string) => this.uiEventHandler(key));
         this.gameEvents.on(GAME.EVENT.SHOWRESULTS, () => this.showResults());
@@ -109,17 +110,21 @@ export default class MainScene extends Phaser.Scene {
         if (this.gameState === GAME.STATE.WAIT) {
             this.gameState = GAME.STATE.PAUSE;
             const result = this.logic.move(true, dir);
-            this.uiView.playMoveSound();
+            //console.log("MOVE FINISHED: ", JSON.stringify(result));
             this.moveCounter++;
+            this.uiView.playMoveSound();
             this.gameView.showMoveResult(result, this.logic.getFieldValues());
-            //this.uiView.updateCounter(0);
-            if (this.logic.canContinueGame()) {
-                this.gameView.newTiles(this.logic.addNewTiles(1, GAME.NEW_TILES), this.logic.getFieldValues());
-                this.gameState = GAME.STATE.WAIT;
-            } else {
-                this.gameState = GAME.STATE.ABSENT;
-                this.showResults();
-            }
+        }
+    }
+
+    private finishMove(): void {
+        //this.uiView.updateCounter(0);
+        if (this.logic.canContinueGame()) {
+            this.gameView.newTiles(this.logic.addNewTiles(1, GAME.NEW_TILES), this.logic.getFieldValues());
+            this.gameState = GAME.STATE.WAIT;
+        } else {
+            this.gameState = GAME.STATE.ABSENT;
+            this.showResults();
         }
     }
 

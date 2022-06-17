@@ -88,7 +88,6 @@ export default class LogicComponent {
                 }
             }
         }
-        console.log("MOVE FINISHED");
         return this.moveResults;
     }
 
