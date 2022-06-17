@@ -17,7 +17,6 @@ export default class MainScene extends Phaser.Scene {
     private logic: LogicComponent;
     private gameState = GAME.STATE.ABSENT;
     private moveCounter: number;
-    private movingTiles: number[];
 
     public constructor() {
         super({ key: SceneNames.Main });
@@ -60,7 +59,7 @@ export default class MainScene extends Phaser.Scene {
         this.gameEvents.on(GAME.EVENT.MOVE, this.makeMove, this);
         this.gameEvents.on(GAME.EVENT.MOVEEND, this.finishMove, this);
         this.gameEvents.on(GAME.EVENT.UI, (key: string) => this.uiEventHandler(key));
-        this.gameEvents.on(GAME.EVENT.SHOWRESULTS, () => this.showResults());
+        this.gameEvents.on(GAME.EVENT.SHOWRESULTS, () => this.showEndGamePopup());
         this.uiView.registerInputHandlers();
         this.scale.on("resize", () => {
             this.gameView.updatePosition();
@@ -72,18 +71,21 @@ export default class MainScene extends Phaser.Scene {
     private uiEventHandler(key: string): void {
         switch (key) {
             case GAME.UI_KEYS[0]: // show/hide end game popup
-                if (!this.foregroundView.endgamePopup.isOpen) this.showResults();
-                else {
+                if (!this.foregroundView.endgamePopup.isOpen) {
+                    this.uiView.hide();
+                    this.showEndGamePopup();
+                } else {
                     this.foregroundView.endgamePopup.hide();
                     this.uiView.show();
                 }
                 break;
             case GAME.UI_KEYS[1]: // Lose game
-                this.gameState = GAME.STATE.PAUSE;
-                this.gameView.tweenLoseGame();
+                this.gameState = GAME.STATE.ABSENT;
+                this.endGame();
                 break;
             case GAME.UI_KEYS[2]: // Win game
-                this.gameState = GAME.STATE.PAUSE;
+                this.gameState = GAME.STATE.ABSENT;
+                this.uiView.hide();
                 this.gameView.tweenWinGame();
                 break;
             case GAME.UI_KEYS[3]:
@@ -109,7 +111,6 @@ export default class MainScene extends Phaser.Scene {
             this.moveCounter++;
             this.gameView.showMoveResult(result, this.logic.getFieldValues());
             this.uiView.updateCounter(result.mergedScore);
-            this.uiView.playMoveSound();
         }
     }
 
@@ -119,23 +120,28 @@ export default class MainScene extends Phaser.Scene {
             this.gameState = GAME.STATE.WAIT;
         } else {
             this.gameState = GAME.STATE.ABSENT;
-            this.showResults();
+            this.endGame();
         }
     }
 
-    private showResults(): void {
+    private endGame(): void {
         console.log("  ***  GAME FINISHED!  ***  ");
         console.log(`Moves: ${this.moveCounter}`);
         this.uiView.hide();
-        this.foregroundView.showResults(this.uiView.getCounter());
         if (this.logic.checkGoal(GAME.GOAL)) {
+            this.gameView.tweenWinGame();
             console.log(" Game is WON: The goal has been achieved.");
-            return;
+        } else {
+            this.gameView.tweenLoseGame();
+            console.log(` Game is lost: no empty tiles left.`);
         }
-        console.log(` Game is lost: no empty tiles left.`);
 
         // Ask for a new game
         //startNewGame();
+    }
+
+    private showEndGamePopup(): void {
+        this.foregroundView.showResults(this.uiView.getCounter());
     }
 
     // private initServices(): void {

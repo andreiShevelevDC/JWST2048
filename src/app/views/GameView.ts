@@ -26,8 +26,6 @@ export default class GameView extends Phaser.GameObjects.Container {
     private gameEvents: Phaser.Events.EventEmitter;
     private videoBacks: Phaser.GameObjects.Video[] = [];
     private currVideoNum: number;
-    private tweenStages = 3;
-    //private showMoveTL = Phaser.Tweens.Timeline;
 
     public constructor(scene: Phaser.Scene, eventsEmitter: Phaser.Events.EventEmitter) {
         super(scene);
@@ -66,13 +64,21 @@ export default class GameView extends Phaser.GameObjects.Container {
         this.scene.tweens.add({
             targets: this.allHexes,
             alpha: 0.0,
-            scale: 0.1,
+            scale: 0.0,
             ease: "Expo.easeIn",
-            duration: 2000,
+            duration: 1500,
             repeat: 0,
             onComplete: () => {
                 this.gameEvents.emit(GAME.EVENT.SHOWRESULTS);
             },
+        });
+        this.scene.tweens.add({
+            targets: this.allLabels,
+            alpha: 0.0,
+            scale: 0.2,
+            ease: "Expo.easeIn",
+            duration: 1000,
+            repeat: 0,
         });
     }
 
@@ -93,7 +99,7 @@ export default class GameView extends Phaser.GameObjects.Container {
             alpha: 0.0,
             scale: 50,
             ease: "Expo.easeIn",
-            duration: 800,
+            duration: 1000,
             repeat: 0,
         });
     }
