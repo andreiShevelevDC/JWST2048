@@ -66,7 +66,7 @@ export default class LogicComponent {
     }
 
     public move(gameCall: boolean, dirVector: number[] | null): GAME.MoveResults {
-        if (gameCall) this.moveResults = { shifted: [], merged: [] };
+        if (gameCall) this.moveResults = { shifted: [], merged: [], mergedScore: 0 };
         if (dirVector) {
             const shiftedTilesPairs = this.shift(dirVector);
             if (shiftedTilesPairs.length > 0) {
@@ -190,7 +190,7 @@ export default class LogicComponent {
                     neighbour.cell.merged = true;
                     cell.value = GAME.CELL_EMPTY;
                     mergedTilesIndices.push(neighbour.index);
-                    this.gameEvents.emit(GAME.EVENT.SCOREUPDATE, neighbour.cell.value);
+                    this.moveResults.mergedScore += neighbour.cell.value;
                 }
             }
         });

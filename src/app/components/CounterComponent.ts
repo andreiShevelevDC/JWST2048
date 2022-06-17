@@ -8,6 +8,7 @@ export default class CounterComponent extends Phaser.GameObjects.Container {
     private xPos = this.scene.scale.gameSize.width + HUD.SCORE_LABEL_POS_X;
     private yPos = HUD.SCORE_LABEL_POS_Y;
     private readonly scoreText = "Score:";
+    private tweenCounter: Phaser.Tweens.Tween;
 
     public constructor(scene) {
         super(scene);
@@ -15,9 +16,27 @@ export default class CounterComponent extends Phaser.GameObjects.Container {
         this.updatePosition();
     }
 
+    public updateCounterTween(): void {
+        if (this.tweenCounter.isPlaying())
+            this.label.setText(
+                `${this.scoreText} ${Math.floor(this.tweenCounter.getValue()).toString().padStart(4, "0")}`,
+            );
+    }
+
     public update(newValue: number): void {
-        this.counter += newValue;
-        this.label.setText(`${this.scoreText} ${this.counter.toString().padStart(4, "0")}`);
+        this.tweenCounter = this.scene.tweens.addCounter({
+            from: this.counter,
+            to: this.counter + newValue,
+            duration: 500,
+            paused: false,
+            repeat: 0,
+            yoyo: false,
+            ease: "Linear",
+            onComplete: () => {
+                this.counter += newValue;
+                this.label.setText(`${this.scoreText} ${this.counter.toString().padStart(4, "0")}`);
+            },
+        });
     }
 
     public updatePosition(): void {

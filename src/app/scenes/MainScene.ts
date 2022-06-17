@@ -23,6 +23,10 @@ export default class MainScene extends Phaser.Scene {
         super({ key: SceneNames.Main });
     }
 
+    public update(): void {
+        if (this.gameState === GAME.STATE.PAUSE) this.uiView.updateCounterTween();
+    }
+
     private init(): void {
         //this.initServices();
         this.gameEvents = new Phaser.Events.EventEmitter();
@@ -36,9 +40,6 @@ export default class MainScene extends Phaser.Scene {
 
     private initGameView(): void {
         this.gameView = new GameView(this, this.gameEvents);
-        // this.gameView.on("lap", () => {
-        //     this.uiView.updateCounter();
-        // });
         this.add.existing(this.gameView);
     }
 
@@ -58,7 +59,6 @@ export default class MainScene extends Phaser.Scene {
     private handleEvents(): void {
         this.gameEvents.on(GAME.EVENT.MOVE, this.makeMove, this);
         this.gameEvents.on(GAME.EVENT.MOVEEND, this.finishMove, this);
-        this.gameEvents.on(GAME.EVENT.SCOREUPDATE, (newTilesSum: number) => this.uiView.updateCounter(newTilesSum));
         this.gameEvents.on(GAME.EVENT.UI, (key: string) => this.uiEventHandler(key));
         this.gameEvents.on(GAME.EVENT.SHOWRESULTS, () => this.showResults());
         this.uiView.registerInputHandlers();
@@ -107,13 +107,13 @@ export default class MainScene extends Phaser.Scene {
             const result = this.logic.move(true, dir);
             //console.log("MOVE FINISHED: ", JSON.stringify(result));
             this.moveCounter++;
-            this.uiView.playMoveSound();
             this.gameView.showMoveResult(result, this.logic.getFieldValues());
+            this.uiView.updateCounter(result.mergedScore);
+            this.uiView.playMoveSound();
         }
     }
 
     private finishMove(): void {
-        //this.uiView.updateCounter(0);
         if (this.logic.canContinueGame()) {
             this.gameView.newTiles(this.logic.addNewTiles(1, GAME.NEW_TILES), this.logic.getFieldValues());
             this.gameState = GAME.STATE.WAIT;

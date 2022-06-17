@@ -16,6 +16,10 @@ export class UIView extends Phaser.GameObjects.Container {
         new TouchHandler(scene, eventEmitter);
     }
 
+    public updateCounterTween(): void {
+        this.counter.updateCounterTween();
+    }
+
     public updateCounter(newValue: number): void {
         this.counter.update(newValue);
     }
