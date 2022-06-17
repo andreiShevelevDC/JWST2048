@@ -101,8 +101,8 @@ export default class MainScene extends Phaser.Scene {
         this.logic = new LogicComponent(this.gameEvents);
         this.moveCounter = 0;
         this.uiView.updateCounter(0);
+        this.gameView.newTiles(this.logic.addNewTiles(2, GAME.NEW_TILES), this.logic.getFieldValues());
         this.gameState = GAME.STATE.WAIT;
-        this.makeMove(null);
     }
 
     private makeMove(dir: number[] | null): void {
@@ -111,10 +111,10 @@ export default class MainScene extends Phaser.Scene {
             const result = this.logic.move(true, dir);
             this.uiView.playMoveSound();
             this.moveCounter++;
-            console.log(`${this.moveCounter} - ${result.shifted}/${result.merged}/${result.new}`);
             this.gameView.showMoveResult(result, this.logic.getFieldValues());
-            //this.gameView.updateLabelsData(this.logic.getFieldValues());
+            //this.uiView.updateCounter(0);
             if (this.logic.canContinueGame()) {
+                this.gameView.newTiles(this.logic.addNewTiles(1, GAME.NEW_TILES), this.logic.getFieldValues());
                 this.gameState = GAME.STATE.WAIT;
             } else {
                 this.gameState = GAME.STATE.ABSENT;

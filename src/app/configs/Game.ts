@@ -19,7 +19,6 @@ export interface ShiftedPair {
 export interface MoveResults {
     shifted: ShiftedPair[]; // pairs of indices
     merged: number[]; // merged tiles indices
-    new: number[]; // new tiles indices
 }
 
 export enum EVENT {

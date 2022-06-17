@@ -47,7 +47,6 @@ export default class GameView extends Phaser.GameObjects.Container {
         //this.showMoveTL = this.scene.tweens.createTimeline();
         this.tweenShiftedTiles(showMoveTL, result.shifted);
         this.tweenMergedTiles(showMoveTL, result.merged);
-        this.tweenNewTiles(showMoveTL, result.new);
         showMoveTL.play();
     }
 
@@ -188,9 +187,12 @@ export default class GameView extends Phaser.GameObjects.Container {
         });
     }
 
-    public tweenNewTiles(timeLine: Phaser.Tweens.Timeline, hexIndices: number[]): void {
+    public newTiles(hexIndices: number[], fieldValues: number[]): void {
+        const showNewTilesTL = this.scene.tweens.createTimeline({
+            onComplete: () => this.updateLabelsData(fieldValues),
+        });
         hexIndices.forEach((index) => {
-            timeLine.add({
+            showNewTilesTL.add({
                 targets: this.allHexes[index],
                 scale: 0.8,
                 ease: "Sine.easeInOut",
@@ -200,7 +202,7 @@ export default class GameView extends Phaser.GameObjects.Container {
                 offset: 0,
             });
             this.allLabels[index].setAlpha(0.0);
-            timeLine.add({
+            showNewTilesTL.add({
                 targets: this.allLabels[index],
                 alpha: 1.0,
                 ease: "Expo.easeIn",
@@ -209,7 +211,7 @@ export default class GameView extends Phaser.GameObjects.Container {
                 offset: 0,
             });
             this.allLabels[index].setScale(0.1);
-            timeLine.add({
+            showNewTilesTL.add({
                 targets: this.allLabels[index],
                 scale: 1.0,
                 ease: "Expo.easeIn",
@@ -218,6 +220,7 @@ export default class GameView extends Phaser.GameObjects.Container {
                 offset: 0,
             });
         });
+        showNewTilesTL.play();
     }
 
     public changeVideo(key: string): void {

@@ -41,8 +41,33 @@ export default class LogicComponent {
         return fieldValues;
     }
 
+    // Adds new tiles to the field,
+    // tilesNum - number of cells to add values to (create new "tiles")
+    // newValues - array of values to randomly choose from, ex. [2], or [2, 4],
+    // or [2, 2, 2, 4] - where 4 will be created with 25% chance
+    public addNewTiles(tilesNum: number, newValues: number[]): number[] {
+        //console.log("2add: ", tilesNum);
+        const maxTilesToAdd: number = this.getEmptyCellsNum();
+        if (tilesNum > maxTilesToAdd) {
+            console.log("ERROR: can't add ", tilesNum, " tiles. Adding maximum of ", maxTilesToAdd);
+            tilesNum = maxTilesToAdd;
+        }
+        const emptyCellsIndices: number[] = this.field
+            .map((cell, index) => (cell.value === GAME.CELL_EMPTY ? index : -1))
+            .filter((val) => val > -1);
+        let randomEmptyCellIndex: number;
+        const newTilesIndices: number[] = [];
+        for (let i = 0; i < tilesNum; i++) {
+            randomEmptyCellIndex = this.getRandomVal(emptyCellsIndices.length);
+            this.field[emptyCellsIndices[randomEmptyCellIndex]].value = newValues[this.getRandomVal(newValues.length)];
+            newTilesIndices.push(emptyCellsIndices[randomEmptyCellIndex]);
+            emptyCellsIndices.splice(randomEmptyCellIndex, 1);
+        }
+        return newTilesIndices;
+    }
+
     public move(gameCall: boolean, dirVector: number[] | null): GAME.MoveResults {
-        if (gameCall) this.moveResults = { shifted: [], merged: [], new: [] };
+        if (gameCall) this.moveResults = { shifted: [], merged: [] };
         if (dirVector) {
             this.currDirVector = dirVector;
             const shiftedTilesPairs = this.shift();
@@ -60,12 +85,8 @@ export default class LogicComponent {
                     this.field.forEach((cell) => {
                         cell.merged = false;
                     });
-                    this.moveResults.new.push(...this.addNewTiles(1, GAME.NEW_TILES));
                 }
             }
-        } else {
-            // first move, only add new tiles
-            this.moveResults.new.push(...this.addNewTiles(2, GAME.NEW_TILES));
         }
         console.log("MOVE FINISHED");
         return this.moveResults;
@@ -91,48 +112,23 @@ export default class LogicComponent {
         return num;
     }
 
-    // Adds new tiles to the field,
-    // tilesNum - number of cells to add values to (create new "tiles")
-    // newValues - array of values to randomly choose from, ex. [2], or [2, 4],
-    // or [2, 2, 2, 4] - where 4 will be created with 25% chance
-    private addNewTiles(tilesNum: number, newValues: number[]): number[] {
-        //console.log("2add: ", tilesNum);
-        const maxTilesToAdd: number = this.getEmptyCellsNum();
-        if (tilesNum > maxTilesToAdd) {
-            console.log("ERROR: can't add ", tilesNum, " tiles. Adding maximum of ", maxTilesToAdd);
-            tilesNum = maxTilesToAdd;
-        }
-        const emptyCellsIndices: number[] = this.field
-            .map((cell, index) => (cell.value === GAME.CELL_EMPTY ? index : -1))
-            .filter((val) => val > -1);
-        let randomEmptyCellIndex: number;
-        const newTilesIndices: number[] = [];
-        for (let i = 0; i < tilesNum; i++) {
-            randomEmptyCellIndex = this.getRandomVal(emptyCellsIndices.length);
-            this.field[emptyCellsIndices[randomEmptyCellIndex]].value = newValues[this.getRandomVal(newValues.length)];
-            newTilesIndices.push(emptyCellsIndices[randomEmptyCellIndex]);
-            emptyCellsIndices.splice(randomEmptyCellIndex, 1);
-        }
-        return newTilesIndices;
-    }
-
     // Shifting tiles in a given direction by one cell
     private shift(): GAME.ShiftedPair[] {
         let neighbour: { cell: Cell; index: number } | null;
         const shiftedPairs: GAME.ShiftedPair[] = [];
-        const shiftedPair: GAME.ShiftedPair = { start: -1, finish: -1 };
 
+        // first run: only find candidates for shifting
         this.field.forEach((cell, index) => {
             if (cell.value !== GAME.CELL_EMPTY && cell.value !== GAME.CELL_DISABLED) {
                 neighbour = this.getNeighbour(cell);
-                if (neighbour && neighbour.cell.value === GAME.CELL_EMPTY) {
-                    neighbour.cell.value = this.field[index].value;
-                    this.field[index].value = GAME.CELL_EMPTY;
-                    shiftedPair.start = index;
-                    shiftedPair.finish = neighbour.index;
-                    shiftedPairs.push(shiftedPair);
-                }
+                if (neighbour && neighbour.cell.value === GAME.CELL_EMPTY)
+                    shiftedPairs.push({ start: index, finish: neighbour.index });
             }
+        });
+        // second run: shift tile (cell's value)
+        shiftedPairs.forEach((pair) => {
+            this.field[pair.finish].value = this.field[pair.start].value;
+            this.field[pair.start].value = GAME.CELL_EMPTY;
         });
         return shiftedPairs;
     }
