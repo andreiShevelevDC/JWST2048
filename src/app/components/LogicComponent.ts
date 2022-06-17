@@ -25,7 +25,6 @@ export default class LogicComponent {
         ], // ring 4 (+18 cells)
     ];
     private field: Cell[] = [];
-    private currDirVector: number[];
     private moveResults: GAME.MoveResults;
 
     public constructor(gameEvents: Phaser.Events.EventEmitter) {
@@ -69,13 +68,12 @@ export default class LogicComponent {
     public move(gameCall: boolean, dirVector: number[] | null): GAME.MoveResults {
         if (gameCall) this.moveResults = { shifted: [], merged: [] };
         if (dirVector) {
-            this.currDirVector = dirVector;
-            const shiftedTilesPairs = this.shift();
+            const shiftedTilesPairs = this.shift(dirVector);
             if (shiftedTilesPairs.length > 0) {
                 this.fuseShiftedPairs(shiftedTilesPairs);
                 this.move(false, dirVector);
             } else {
-                const mergedCellsIndices = this.merge();
+                const mergedCellsIndices = this.merge(dirVector);
                 if (mergedCellsIndices.length > 0) {
                     // there are merged tiles, start shifting tiles again
                     this.moveResults.merged.push(...mergedCellsIndices);
@@ -112,14 +110,14 @@ export default class LogicComponent {
     }
 
     // Shifting tiles in a given direction by one cell
-    private shift(): GAME.ShiftedPair[] {
+    private shift(dirVector: number[]): GAME.ShiftedPair[] {
         let neighbour: { cell: Cell; index: number } | null;
         const shiftedPairs: GAME.ShiftedPair[] = [];
 
         // first run: only find candidates for shifting
         this.field.forEach((cell, index) => {
             if (cell.value !== GAME.CELL_EMPTY && cell.value !== GAME.CELL_DISABLED) {
-                neighbour = this.getNeighbour(cell);
+                neighbour = this.getNeighbour(cell, dirVector);
                 if (neighbour && neighbour.cell.value === GAME.CELL_EMPTY)
                     shiftedPairs.push({ start: index, finish: neighbour.index });
             }
@@ -181,17 +179,18 @@ export default class LogicComponent {
     // returns random integer, where 0 <= return < max
     private getRandomVal = (max: number): number => Math.floor(Math.random() * max);
 
-    private merge(): number[] {
+    private merge(dirVector: number[]): number[] {
         const mergedTilesIndices: number[] = [];
         let neighbour: { cell: Cell; index: number } | null;
         this.field.forEach((cell) => {
             if (cell.value !== GAME.CELL_EMPTY && cell.value !== GAME.CELL_DISABLED) {
-                neighbour = this.getNeighbour(cell);
+                neighbour = this.getNeighbour(cell, dirVector);
                 if (neighbour && neighbour.cell.value === cell.value && !neighbour.cell.merged && !cell.merged) {
                     neighbour.cell.value = cell.value * GAME.BASE_TILE;
                     neighbour.cell.merged = true;
                     cell.value = GAME.CELL_EMPTY;
                     mergedTilesIndices.push(neighbour.index);
+                    this.gameEvents.emit(GAME.EVENT.SCOREUPDATE, neighbour.cell.value);
                 }
             }
         });
@@ -199,12 +198,12 @@ export default class LogicComponent {
     }
 
     // returns the next to current cell in the given direction
-    private getNeighbour(cell: Cell): { cell: Cell; index: number } | null {
+    private getNeighbour(cell: Cell, dirVector: number[]): { cell: Cell; index: number } | null {
         for (let i = 0; i < this.field.length; i++) {
             if (
-                this.field[i].x === cell.x + this.currDirVector[0] &&
-                this.field[i].y === cell.y + this.currDirVector[1] &&
-                this.field[i].z === cell.z - this.currDirVector[0] - this.currDirVector[1]
+                this.field[i].x === cell.x + dirVector[0] &&
+                this.field[i].y === cell.y + dirVector[1] &&
+                this.field[i].z === cell.z - dirVector[0] - dirVector[1]
             )
                 return { cell: this.field[i], index: i };
         }

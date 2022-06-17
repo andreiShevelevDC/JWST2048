@@ -56,14 +56,9 @@ export default class MainScene extends Phaser.Scene {
     }
 
     private handleEvents(): void {
-        // this.gameEvents.on(GAME.EVENT.TILESSHIFTSTART, (shiftedTiles: number[], dirVector: number[]) => {
-        //     this.movingTiles = shiftedTiles;
-        //     this.gameView.tweenShiftedTiles(shiftedTiles, dirVector);
-        // });
-        // this.gameEvents.on(GAME.EVENT.TILESSHIFTEND, () => this.logic.shiftEnd(this.movingTiles));
         this.gameEvents.on(GAME.EVENT.MOVE, this.makeMove, this);
         this.gameEvents.on(GAME.EVENT.MOVEEND, this.finishMove, this);
-        //this.gameEvents.on(GAME.EVENT.SCOREUPDATE, (newTilesSum: number) => this.uiView.updateCounter(newTilesSum));
+        this.gameEvents.on(GAME.EVENT.SCOREUPDATE, (newTilesSum: number) => this.uiView.updateCounter(newTilesSum));
         this.gameEvents.on(GAME.EVENT.UI, (key: string) => this.uiEventHandler(key));
         this.gameEvents.on(GAME.EVENT.SHOWRESULTS, () => this.showResults());
         this.uiView.registerInputHandlers();

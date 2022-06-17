@@ -25,8 +25,6 @@ export enum EVENT {
     MOVE = "eventMove",
     SCOREUPDATE = "eventScoreUpdate",
     UI = "eventUI",
-    TILESSHIFTSTART = "eventTilesShiftStart",
-    TILESSHIFTEND = "eventTilesShiftEnd",
     MOVEEND = "eventMoveEnd",
     SHOWRESULTS = "eventShowResults",
 }
