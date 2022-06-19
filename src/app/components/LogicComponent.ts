@@ -181,17 +181,43 @@ export default class LogicComponent {
 
     private merge(dirVector: number[]): number[] {
         const mergedTilesIndices: number[] = [];
+        const tempMergedPairs: GAME.ShiftedPair[] = [];
         let neighbour: { cell: Cell; index: number } | null;
-        this.field.forEach((cell) => {
+        // this.field.forEach((cell) => {
+        //     if (cell.value !== GAME.CELL_EMPTY && cell.value !== GAME.CELL_DISABLED) {
+        //         neighbour = this.getNeighbour(cell, dirVector);
+        //         if (neighbour && neighbour.cell.value === cell.value && !neighbour.cell.merged && !cell.merged) {
+        //             neighbour.cell.value = cell.value * GAME.BASE_TILE;
+        //             neighbour.cell.merged = true;
+        //             cell.value = GAME.CELL_EMPTY;
+        //             mergedTilesIndices.push(neighbour.index);
+        //             this.moveResults.mergedScore += neighbour.cell.value;
+        //         }
+        //     }
+        // });
+        this.field.forEach((cell, index) => {
             if (cell.value !== GAME.CELL_EMPTY && cell.value !== GAME.CELL_DISABLED) {
                 neighbour = this.getNeighbour(cell, dirVector);
-                if (neighbour && neighbour.cell.value === cell.value && !neighbour.cell.merged && !cell.merged) {
-                    neighbour.cell.value = cell.value * GAME.BASE_TILE;
-                    neighbour.cell.merged = true;
-                    cell.value = GAME.CELL_EMPTY;
-                    mergedTilesIndices.push(neighbour.index);
-                    this.moveResults.mergedScore += neighbour.cell.value;
+                if (neighbour && neighbour.cell.value === cell.value)
+                    tempMergedPairs.push({ start: index, finish: neighbour.index });
+            }
+        });
+        for (let i = 0; i < tempMergedPairs.length; i++) {
+            for (let j = 1; j < tempMergedPairs.length; j++) {
+                if (tempMergedPairs[i].start === tempMergedPairs[j].finish) {
+                    tempMergedPairs[j].start = -1;
+                    tempMergedPairs[j].finish = -1;
                 }
+            }
+        }
+        tempMergedPairs.forEach((pair) => {
+            if (pair.start !== -1 && !this.field[pair.start].merged && !this.field[pair.finish].merged) {
+                this.field[pair.finish].value = this.field[pair.start].value * GAME.BASE_TILE;
+                this.field[pair.start].value = GAME.CELL_EMPTY;
+                this.field[pair.finish].merged = true;
+                this.field[pair.start].merged = true;
+                mergedTilesIndices.push(pair.finish);
+                this.moveResults.mergedScore += this.field[pair.finish].value;
             }
         });
         return mergedTilesIndices;

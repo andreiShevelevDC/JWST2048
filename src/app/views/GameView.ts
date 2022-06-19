@@ -209,7 +209,7 @@ export default class GameView extends Phaser.GameObjects.Container {
                 x: { from: x0, to: x1 },
                 y: { from: y0, to: y1 },
                 alpha: 0,
-                ease: "Expo.easeIn",
+                ease: "Quad.easeIn",
                 duration: 300,
                 repeat: 0,
                 offset: 0,
