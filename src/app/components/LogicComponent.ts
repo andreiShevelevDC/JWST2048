@@ -24,11 +24,16 @@ export default class LogicComponent {
             3, -2, 3, -1, 3,
         ], // ring 4 (+18 cells)
     ];
-    private field: Cell[] = [];
+    private field: Cell[];
     private moveResults: GAME.MoveResults;
 
     public constructor(gameEvents: Phaser.Events.EventEmitter) {
         this.gameEvents = gameEvents;
+        this.restart();
+    }
+
+    public restart(): void {
+        this.field = [];
         this.createCircularField();
     }
 

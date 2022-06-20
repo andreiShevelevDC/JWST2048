@@ -26,6 +26,15 @@ export default class MainScene extends Phaser.Scene {
         if (this.gameState === GAME.STATE.PAUSE) this.uiView.updateCounterTween();
     }
 
+    private resetGame(): void {
+        this.moveCounter = 0;
+        this.uiView.resetCounter();
+        this.logic.restart();
+        this.gameView.reset();
+        this.gameView.newTiles(this.logic.addNewTiles(2, GAME.NEW_TILES), this.logic.getFieldValues());
+        this.gameState = GAME.STATE.WAIT;
+    }
+
     private init(): void {
         //this.initServices();
         this.gameEvents = new Phaser.Events.EventEmitter();

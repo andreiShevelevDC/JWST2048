@@ -23,6 +23,11 @@ export default class CounterComponent extends Phaser.GameObjects.Container {
             );
     }
 
+    public reset(): void {
+        this.counter = 0;
+        this.label.setText(`${this.scoreText} 0000`);
+    }
+
     public update(newValue: number): void {
         this.tweenCounter = this.scene.tweens.addCounter({
             from: this.counter,

@@ -25,6 +25,10 @@ export class UIView extends Phaser.GameObjects.Container {
         this.playMoveSound(); // as counter is updated only at the end of a move
     }
 
+    public resetCounter(): void {
+        this.counter.reset();
+    }
+
     // used to show end game results
     public hide(): void {
         //console.log(this.counter.getValue());

@@ -38,6 +38,10 @@ export default class GameView extends Phaser.GameObjects.Container {
         this.runIdleAnimation(true);
     }
 
+    public reset(): void {
+        this.allLabels.forEach((label) => label.setText(""));
+    }
+
     public showMoveResult(result: GAME.MoveResults, values: number[]): void {
         this.tweenShiftedTiles(result, values);
     }
@@ -242,21 +246,6 @@ export default class GameView extends Phaser.GameObjects.Container {
         radius = (radius / Math.sqrt(3) / 2) * this.partOfShortSizeUsed;
         this.currHexRadius = radius / GAME.SIZE;
     }
-
-    // private readjustHexes(): void {
-    //     console.log(this.currCenter, this.prevCenter);
-    //     const shift: Point = {
-    //         x: (this.currCenter.x - this.prevCenter.x) / 2,
-    //         y: (this.currCenter.y - this.prevCenter.y) / 2,
-    //     };
-    //     console.log(shift);
-    //     this.allHexes.forEach((hex, i) => {
-    //         const hexCenter = hex.getCenter();
-    //         if (i === 0) console.log(`${i}: ${hexCenter.x},${hexCenter.y}`);
-    //         hex.setPosition(hexCenter.x + shift.x, hexCenter.y + shift.y);
-    //         if (i === 0) console.log(`${i}: ${hex.getCenter().x},${hex.getCenter().y}`);
-    //     });
-    // }
 
     private idleAnimation(idleHexes: HexIdleAnimation[]): void {
         for (let i = 0; i < idleHexes.length; i++) {
