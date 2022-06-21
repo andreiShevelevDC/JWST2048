@@ -1,0 +1,118 @@
+// Cells has a probability to temporarily became unavailable (disabled)
+// freezing the current value
+// it can become available/active later
+
+import * as GAME from "../configs/Game";
+import LogicComponent from "../components/LogicComponent";
+
+export default class MeteorStreamLogicComponent extends LogicComponent {
+    private frozen: number[] = []; // saves current value of the cell if it is frozen
+    private readonly maxNumFrozenCells = 5; // max number of simultaneously frozen cells
+    private readonly maxNumFrozenCellsPerMove = 1; // how many cells can be frozen each move
+    private readonly maxNumCellsToProbePerMove = 1; // how many cells to try to freeze each move
+
+    // a probability to freeze depends on the cell's value
+    // [value, prob percent]
+    private readonly cellFreezeProb = [
+        [GAME.CELL_EMPTY, 15],
+        [GAME.BASE_TILE ** 2, 10],
+        [GAME.BASE_TILE ** 3, 8],
+        [GAME.BASE_TILE ** 4, 6],
+        [GAME.BASE_TILE ** 5, 4],
+        [GAME.BASE_TILE ** 6, 2],
+        [GAME.BASE_TILE ** 7, 1],
+        [GAME.BASE_TILE ** 8, 0.5],
+        [GAME.BASE_TILE ** 9, 0.25],
+    ];
+    // each move each frozen cells are probed to thaw
+    private readonly cellThawProb = [
+        [GAME.CELL_EMPTY, 10],
+        [GAME.BASE_TILE ** 2, 8],
+        [GAME.BASE_TILE ** 3, 6],
+        [GAME.BASE_TILE ** 4, 4],
+        [GAME.BASE_TILE ** 5, 3],
+        [GAME.BASE_TILE ** 6, 2],
+        [GAME.BASE_TILE ** 7, 2],
+        [GAME.BASE_TILE ** 8, 2],
+        [GAME.BASE_TILE ** 9, 2],
+    ];
+
+    public constructor(gameEvents: Phaser.Events.EventEmitter) {
+        super(gameEvents);
+        this.initFrozen();
+    }
+
+    // should be called after the move and before adding new tiles
+    // returns arrays of thawed and frozen cells this turn
+    public moveFreeze(): { thawed: number[]; frozen: number[] } {
+        const numberOfAttemptsToFindCellToFreeze = 50;
+        const frozenCells: number[] = [];
+        const thawedCells = this.moveThaw(); // thawed cells can't freeze again this very turn
+        if (this.getNumberOfFrozenCells() >= this.maxNumFrozenCells) return { thawed: thawedCells, frozen: [] };
+        let cellToFreeze: number;
+        let freezeCandidate: number;
+        for (let j = 0; j < this.maxNumCellsToProbePerMove; j++) {
+            cellToFreeze = -1;
+            for (let i = 0; i < numberOfAttemptsToFindCellToFreeze; i++) {
+                freezeCandidate = this.getRandomVal(this.field.length);
+                if (
+                    this.field[freezeCandidate].value !== GAME.CELL_DISABLED && // candidate is not among already frozen cells
+                    thawedCells.find((thawedCell) => thawedCell === freezeCandidate) === -1 && // and not among freshly thawed cells
+                    frozenCells.find((frozenCell) => frozenCell === freezeCandidate) === -1 // and not among cells already chosen for freezing
+                ) {
+                    cellToFreeze = freezeCandidate;
+                    break;
+                }
+            }
+            if (cellToFreeze === -1) {
+                console.log("Wasn't been able to find a cell to freeze");
+                return { thawed: thawedCells, frozen: frozenCells };
+            }
+            const freezeProbe = this.cellThawProb.find((pair) => pair[0] === this.field[cellToFreeze].value);
+            if (freezeProbe && this.getRandomVal(100) > freezeProbe[1]) frozenCells.push(cellToFreeze);
+            if (frozenCells.length > this.maxNumFrozenCellsPerMove) break;
+        }
+        return { thawed: thawedCells, frozen: frozenCells };
+    }
+
+    private getNumberOfFrozenCells = (): number => {
+        let num = 0;
+        this.frozen.forEach((item) => {
+            if (item !== GAME.CELL_DISABLED) num++;
+        });
+        return num;
+    };
+
+    private moveThaw(): number[] {
+        let thawProb: number[] | undefined;
+        const thawedCells: number[] = [];
+        this.frozen.forEach((frozenVal, index) => {
+            if (frozenVal !== GAME.CELL_DISABLED) {
+                thawProb = this.cellThawProb.find((pair) => pair[0] === frozenVal);
+                if (thawProb && this.getRandomVal(100) > thawProb[1]) {
+                    this.thawCell(index);
+                    thawedCells.push(index);
+                }
+            }
+        });
+        return thawedCells;
+    }
+
+    private initFrozen(): void {
+        this.field.forEach(() => this.frozen.push(GAME.CELL_DISABLED));
+    }
+
+    private freezeCell(cellIndex: number): void {
+        if (this.field[cellIndex].value !== GAME.CELL_DISABLED && this.frozen[cellIndex] === GAME.CELL_DISABLED) {
+            this.frozen[cellIndex] = this.field[cellIndex].value;
+            this.field[cellIndex].value = GAME.CELL_DISABLED;
+        } else console.log(`Cell ${cellIndex} is already disabled!`);
+    }
+
+    private thawCell(cellIndex: number): void {
+        if (this.field[cellIndex].value === GAME.CELL_DISABLED && this.frozen[cellIndex] !== GAME.CELL_DISABLED) {
+            this.field[cellIndex].value = this.frozen[cellIndex];
+            this.frozen[cellIndex] = GAME.CELL_DISABLED;
+        } else console.log(`Cell ${cellIndex} is already enabled!`);
+    }
+}

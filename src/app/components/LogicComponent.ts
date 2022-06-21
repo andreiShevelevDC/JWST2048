@@ -1,3 +1,5 @@
+// Static field, 19 cells
+
 // CELL: one hex of the field
 // EMPTY CELL: CELL has value !== CELL_EMPTY
 // DISABLED CELL: CELL that has value === CELL_DISABLED and can't be changed
@@ -14,6 +16,7 @@ type Cell = {
 };
 
 export default class LogicComponent {
+    protected field: Cell[];
     private gameEvents: Phaser.Events.EventEmitter;
     private readonly fieldRings = [
         //[0,0],  // center cell, created in GameLogic.createCircularField()
@@ -24,7 +27,6 @@ export default class LogicComponent {
             3, -2, 3, -1, 3,
         ], // ring 4 (+18 cells)
     ];
-    private field: Cell[];
     private moveResults: GAME.MoveResults;
 
     public constructor(gameEvents: Phaser.Events.EventEmitter) {
@@ -105,6 +107,21 @@ export default class LogicComponent {
 
     public canContinueGame = (): boolean => !(this.checkGoal(GAME.GOAL) || this.getEmptyCellsNum() === 0);
 
+    // returns random integer, where 0 <= return < max
+    protected getRandomVal = (max: number): number => Math.floor(Math.random() * max);
+
+    // create circular field of size <gameSize> without gaps
+    private createCircularField(): void {
+        this.field[0] = {
+            x: 0,
+            y: 0,
+            z: 0,
+            value: GAME.CELL_EMPTY,
+            merged: false,
+        };
+        for (let ring = 2; ring <= GAME.SIZE; ring++) this.makeRing(ring);
+    }
+
     // returns the number of empty tiles
     private getEmptyCellsNum(): number {
         let num = 0;
@@ -152,18 +169,6 @@ export default class LogicComponent {
         } else this.moveResults.shifted = shiftedPairs;
     }
 
-    // create circular field of size <gameSize> without gaps
-    private createCircularField(): void {
-        this.field[0] = {
-            x: 0,
-            y: 0,
-            z: 0,
-            value: GAME.CELL_EMPTY,
-            merged: false,
-        };
-        for (let ring = 2; ring <= GAME.SIZE; ring++) this.makeRing(ring);
-    }
-
     private makeRing(ringNum: number): void {
         let x: number;
         let y: number;
@@ -180,9 +185,6 @@ export default class LogicComponent {
             });
         }
     }
-
-    // returns random integer, where 0 <= return < max
-    private getRandomVal = (max: number): number => Math.floor(Math.random() * max);
 
     private merge(dirVector: number[]): number[] {
         const mergedTilesIndices: number[] = [];
