@@ -6,7 +6,8 @@ import { ForegroundView } from "../views/ForegroundView";
 import GameView from "../views/GameView";
 import { UIView } from "../views/UIView";
 import * as GAME from "../configs/Game";
-import LogicComponent from "../components/LogicComponent";
+//import LogicComponent from "../components/LogicComponent";
+import MeteorStreamLogicComponent from "../components/MeteorStreamLogicComponent";
 
 export default class MainScene extends Phaser.Scene {
     private gameView: GameView;
@@ -14,7 +15,7 @@ export default class MainScene extends Phaser.Scene {
     private foregroundView: ForegroundView;
     private gameEvents: Phaser.Events.EventEmitter;
 
-    private logic: LogicComponent;
+    private logic: MeteorStreamLogicComponent;
     private gameState = GAME.STATE.ABSENT;
     private moveCounter: number;
 
@@ -66,7 +67,8 @@ export default class MainScene extends Phaser.Scene {
 
     private handleEvents(): void {
         this.gameEvents.on(GAME.EVENT.MOVE, this.makeMove, this);
-        this.gameEvents.on(GAME.EVENT.MOVEEND, this.finishMove, this);
+        this.gameEvents.on(GAME.EVENT.MOVEEND, this.contMove, this);
+        this.gameEvents.on(GAME.EVENT.FREEZEFINISHED, this.finishMove, this);
         this.gameEvents.on(GAME.EVENT.UI, (key: string) => this.uiEventHandler(key));
         this.gameEvents.on(GAME.EVENT.SHOWRESULTS, () => this.showEndGamePopup());
         this.gameEvents.on(GAME.EVENT.RESTART, () => this.resetGame());
@@ -106,7 +108,7 @@ export default class MainScene extends Phaser.Scene {
     }
 
     private startGame(): void {
-        this.logic = new LogicComponent(this.gameEvents);
+        this.logic = new MeteorStreamLogicComponent(this.gameEvents);
         this.moveCounter = 0;
         //this.uiView.updateCounter(0);
         this.gameView.newTiles(this.logic.addNewTiles(2, GAME.NEW_TILES), this.logic.getFieldValues());
@@ -124,14 +126,21 @@ export default class MainScene extends Phaser.Scene {
         }
     }
 
-    private finishMove(): void {
+    private contMove(): void {
         if (this.logic.canContinueGame()) {
-            this.gameView.newTiles(this.logic.addNewTiles(1, GAME.NEW_TILES), this.logic.getFieldValues());
-            this.gameState = GAME.STATE.WAIT;
+            const freezeResults = this.logic.moveFreeze();
+            if (freezeResults.thawed.length > 0 || freezeResults.frozen.length > 0)
+                this.gameView.tweenThawAndFreeze(freezeResults);
+            else this.finishMove();
         } else {
             this.gameState = GAME.STATE.ABSENT;
             this.endGame();
         }
+    }
+
+    private finishMove(): void {
+        this.gameView.newTiles(this.logic.addNewTiles(1, GAME.NEW_TILES), this.logic.getFieldValues());
+        this.gameState = GAME.STATE.WAIT;
     }
 
     private endGame(): void {

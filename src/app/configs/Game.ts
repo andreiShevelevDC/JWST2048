@@ -28,6 +28,7 @@ export enum EVENT {
     UI = "eventUI",
     MOVEEND = "eventMoveEnd",
     SHOWRESULTS = "eventShowResults",
+    FREEZEFINISHED = "eventFreezeFinished",
 }
 
 export const NEW_TILES = [BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE ** 2, BASE_TILE ** 2];

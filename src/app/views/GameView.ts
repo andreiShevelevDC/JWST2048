@@ -109,6 +109,23 @@ export default class GameView extends Phaser.GameObjects.Container {
         });
     }
 
+    public tweenThawAndFreeze(input: { thawed: number[]; frozen: number[] }): void {
+        const thawTilesTL = this.scene.tweens.createTimeline({
+            onComplete: () => this.tweenFreeze(input.frozen),
+        });
+        input.thawed.forEach((cellIndex) => {
+            thawTilesTL.add({
+                targets: this.allHexes[cellIndex],
+                fillColor: THEME.JWST.cHexFill,
+                ease: "Sine.easeInOut",
+                duration: 300,
+                repeat: 0,
+                offset: 0,
+            });
+        });
+        thawTilesTL.play();
+    }
+
     public newTiles(hexIndices: number[], fieldValues: number[]): void {
         const showNewTilesTL = this.scene.tweens.createTimeline({
             onComplete: () => this.updateLabelsData(fieldValues),
@@ -164,6 +181,24 @@ export default class GameView extends Phaser.GameObjects.Container {
                     this.videoBacks[this.currVideoNum].setAlpha(this.videoBacks[this.currVideoNum].alpha + 0.2);
                 break;
         }
+    }
+
+    private tweenFreeze(freeze: number[]): void {
+        const freezeTilesTL = this.scene.tweens.createTimeline({
+            onComplete: () => this.gameEvents.emit(GAME.EVENT.FREEZEFINISHED),
+        });
+        console.log("Freeze tween: ", freeze);
+        freeze.forEach((cellIndex) => {
+            freezeTilesTL.add({
+                targets: this.allHexes[cellIndex],
+                fillColor: THEME.JWST.cHexFillFrozen,
+                ease: "Sine.easeInOut",
+                duration: 300,
+                repeat: 0,
+                offset: 0,
+            });
+        });
+        freezeTilesTL.play();
     }
 
     private tweenMergedTiles(mergedTilesIndices: number[]): void {

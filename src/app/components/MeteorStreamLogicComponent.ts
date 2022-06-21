@@ -9,29 +9,29 @@ export default class MeteorStreamLogicComponent extends LogicComponent {
     private frozen: number[] = []; // saves current value of the cell if it is frozen
     private readonly maxNumFrozenCells = 5; // max number of simultaneously frozen cells
     private readonly maxNumFrozenCellsPerMove = 1; // how many cells can be frozen each move
-    private readonly maxNumCellsToProbePerMove = 1; // how many cells to try to freeze each move
+    private readonly maxNumCellsToProbePerMove = 3; // how many cells to try to freeze each move
 
     // a probability to freeze depends on the cell's value
     // [value, prob percent]
     private readonly cellFreezeProb = [
-        [GAME.CELL_EMPTY, 15],
-        [GAME.BASE_TILE ** 2, 10],
-        [GAME.BASE_TILE ** 3, 8],
-        [GAME.BASE_TILE ** 4, 6],
-        [GAME.BASE_TILE ** 5, 4],
-        [GAME.BASE_TILE ** 6, 2],
-        [GAME.BASE_TILE ** 7, 1],
-        [GAME.BASE_TILE ** 8, 0.5],
-        [GAME.BASE_TILE ** 9, 0.25],
+        [GAME.CELL_EMPTY, 17],
+        [GAME.BASE_TILE ** 2, 12],
+        [GAME.BASE_TILE ** 3, 10],
+        [GAME.BASE_TILE ** 4, 8],
+        [GAME.BASE_TILE ** 5, 6],
+        [GAME.BASE_TILE ** 6, 4],
+        [GAME.BASE_TILE ** 7, 2],
+        [GAME.BASE_TILE ** 8, 1],
+        [GAME.BASE_TILE ** 9, 0.5],
     ];
     // each move each frozen cells are probed to thaw
     private readonly cellThawProb = [
         [GAME.CELL_EMPTY, 10],
         [GAME.BASE_TILE ** 2, 8],
         [GAME.BASE_TILE ** 3, 6],
-        [GAME.BASE_TILE ** 4, 4],
-        [GAME.BASE_TILE ** 5, 3],
-        [GAME.BASE_TILE ** 6, 2],
+        [GAME.BASE_TILE ** 4, 5],
+        [GAME.BASE_TILE ** 5, 4],
+        [GAME.BASE_TILE ** 6, 3],
         [GAME.BASE_TILE ** 7, 2],
         [GAME.BASE_TILE ** 8, 2],
         [GAME.BASE_TILE ** 9, 2],
@@ -57,8 +57,8 @@ export default class MeteorStreamLogicComponent extends LogicComponent {
                 freezeCandidate = this.getRandomVal(this.field.length);
                 if (
                     this.field[freezeCandidate].value !== GAME.CELL_DISABLED && // candidate is not among already frozen cells
-                    thawedCells.find((thawedCell) => thawedCell === freezeCandidate) === -1 && // and not among freshly thawed cells
-                    frozenCells.find((frozenCell) => frozenCell === freezeCandidate) === -1 // and not among cells already chosen for freezing
+                    thawedCells.find((thawedCell) => thawedCell === freezeCandidate) === undefined && // and not among freshly thawed cells
+                    frozenCells.find((frozenCell) => frozenCell === freezeCandidate) === undefined // and not among cells already chosen for freezing
                 ) {
                     cellToFreeze = freezeCandidate;
                     break;
@@ -69,9 +69,14 @@ export default class MeteorStreamLogicComponent extends LogicComponent {
                 return { thawed: thawedCells, frozen: frozenCells };
             }
             const freezeProbe = this.cellThawProb.find((pair) => pair[0] === this.field[cellToFreeze].value);
-            if (freezeProbe && this.getRandomVal(100) > freezeProbe[1]) frozenCells.push(cellToFreeze);
-            if (frozenCells.length > this.maxNumFrozenCellsPerMove) break;
+            if (freezeProbe && this.getRandomVal(100) < freezeProbe[1]) {
+                this.freezeCell(cellToFreeze);
+                frozenCells.push(cellToFreeze);
+            }
+            if (frozenCells.length >= this.maxNumFrozenCellsPerMove) break;
         }
+        if (frozenCells.length > 0) console.log("FREEZING #", frozenCells);
+        if (thawedCells.length > 0) console.log("THAWING #", thawedCells);
         return { thawed: thawedCells, frozen: frozenCells };
     }
 
@@ -89,7 +94,7 @@ export default class MeteorStreamLogicComponent extends LogicComponent {
         this.frozen.forEach((frozenVal, index) => {
             if (frozenVal !== GAME.CELL_DISABLED) {
                 thawProb = this.cellThawProb.find((pair) => pair[0] === frozenVal);
-                if (thawProb && this.getRandomVal(100) > thawProb[1]) {
+                if (thawProb && this.getRandomVal(100) < thawProb[1]) {
                     this.thawCell(index);
                     thawedCells.push(index);
                 }

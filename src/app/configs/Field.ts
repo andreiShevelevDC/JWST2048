@@ -5,6 +5,7 @@
 export const JWST = {
     cBackground: 0x01020a,
     cHexFill: 0xfccc00,
+    cHexFillFrozen: 0x0d8cfc,
     aHexFill: 1.0,
     wLine: 2,
     cLine: 0x333333,
