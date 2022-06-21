@@ -1,4 +1,5 @@
 import * as HUD from "../configs/Hud";
+import { EVENT } from "../configs/Game";
 import LabelComponent from "./LabelComponent";
 
 export default class PopupComponent extends Phaser.GameObjects.Container {
@@ -10,9 +11,11 @@ export default class PopupComponent extends Phaser.GameObjects.Container {
     private buttonLabel: LabelComponent;
     private readonly popupText = "Final score:";
     private readonly buttonText = "New Game";
+    private gameEvents: Phaser.Events.EventEmitter;
 
-    public constructor(scene) {
+    public constructor(scene: Phaser.Scene, eventsEmitter: Phaser.Events.EventEmitter) {
         super(scene);
+        this.gameEvents = eventsEmitter;
         this.init();
         this.hide();
         //this.show(4096);
@@ -100,7 +103,10 @@ export default class PopupComponent extends Phaser.GameObjects.Container {
             )
             .on("pointerover", () => this.setButtonActive())
             .on("pointerout", () => this.setButtonNormal())
-            .on("pointerdown", () => this.hide());
+            .on("pointerdown", () => {
+                this.hide();
+                this.gameEvents.emit(EVENT.RESTART);
+            });
         this.add(this.button);
     }
 

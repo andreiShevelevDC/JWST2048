@@ -39,7 +39,8 @@ export default class GameView extends Phaser.GameObjects.Container {
     }
 
     public reset(): void {
-        this.allLabels.forEach((label) => label.setText(""));
+        this.allLabels.forEach((label) => label.setText("").setScale(1.0));
+        this.allHexes.forEach((hex) => hex.setScale(1.0).setAlpha(1.0));
     }
 
     public showMoveResult(result: GAME.MoveResults, values: number[]): void {
@@ -225,7 +226,6 @@ export default class GameView extends Phaser.GameObjects.Container {
 
     // should receive array of strings with new labels' values
     private updateLabelsData(values: number[]): void {
-        //this.allLabels.forEach((label, index) => label.setText(index.toString().padStart(2, "0")));
         this.allLabels.forEach((label, i) => {
             if (values[i] !== null) {
                 if (values[i] === 0) label.setText("");

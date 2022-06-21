@@ -24,7 +24,7 @@ export interface MoveResults {
 
 export enum EVENT {
     MOVE = "eventMove",
-    SCOREUPDATE = "eventScoreUpdate",
+    RESTART = "eventGameRestart",
     UI = "eventUI",
     MOVEEND = "eventMoveEnd",
     SHOWRESULTS = "eventShowResults",

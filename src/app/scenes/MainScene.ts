@@ -57,7 +57,7 @@ export default class MainScene extends Phaser.Scene {
     }
 
     private initForegroundView(): void {
-        this.foregroundView = new ForegroundView(this);
+        this.foregroundView = new ForegroundView(this, this.gameEvents);
         // this.foregroundView.on("counterPopupClosed", () => {
         //     this.gameView.runRacoon();
         // });
@@ -69,6 +69,7 @@ export default class MainScene extends Phaser.Scene {
         this.gameEvents.on(GAME.EVENT.MOVEEND, this.finishMove, this);
         this.gameEvents.on(GAME.EVENT.UI, (key: string) => this.uiEventHandler(key));
         this.gameEvents.on(GAME.EVENT.SHOWRESULTS, () => this.showEndGamePopup());
+        this.gameEvents.on(GAME.EVENT.RESTART, () => this.resetGame());
         this.uiView.registerInputHandlers();
         this.scale.on("resize", () => {
             this.gameView.updatePosition();
@@ -107,7 +108,7 @@ export default class MainScene extends Phaser.Scene {
     private startGame(): void {
         this.logic = new LogicComponent(this.gameEvents);
         this.moveCounter = 0;
-        this.uiView.updateCounter(0);
+        //this.uiView.updateCounter(0);
         this.gameView.newTiles(this.logic.addNewTiles(2, GAME.NEW_TILES), this.logic.getFieldValues());
         this.gameState = GAME.STATE.WAIT;
     }

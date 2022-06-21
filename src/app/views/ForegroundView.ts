@@ -8,9 +8,11 @@ export class ForegroundView extends Phaser.GameObjects.Container {
     // private modal: Phaser.GameObjects.Sprite;
     // private counterPopup: CounterPopup;
     public endgamePopup: PopupComponent;
+    private readonly gameEvents: Phaser.Events.EventEmitter;
 
-    public constructor(scene) {
+    public constructor(scene: Phaser.Scene, eventsEmitter: Phaser.Events.EventEmitter) {
         super(scene);
+        this.gameEvents = eventsEmitter;
         this.init();
     }
 
@@ -30,7 +32,7 @@ export class ForegroundView extends Phaser.GameObjects.Container {
     }
 
     private initPopup(): void {
-        this.endgamePopup = new PopupComponent(this.scene);
+        this.endgamePopup = new PopupComponent(this.scene, this.gameEvents);
         this.add(this.endgamePopup);
     }
 
