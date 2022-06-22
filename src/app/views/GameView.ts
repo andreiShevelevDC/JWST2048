@@ -39,8 +39,8 @@ export default class GameView extends Phaser.GameObjects.Container {
     }
 
     public reset(): void {
-        this.allLabels.forEach((label) => label.setText("").setScale(1.0));
-        this.allHexes.forEach((hex) => hex.setScale(1.0).setAlpha(1.0));
+        this.allLabels.forEach((label) => label.setText("").setScale(1.0).setStyle({ color: THEME.JWST_LABEL.color }));
+        this.allHexes.forEach((hex) => hex.setScale(1.0).setFillStyle(THEME.JWST.cHexFill, THEME.JWST.aHexFill));
     }
 
     public showMoveResult(result: GAME.MoveResults, values: number[]): void {

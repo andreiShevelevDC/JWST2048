@@ -98,14 +98,9 @@ export default class LogicComponent {
 
     // check if the tile with goal value has been made
     // TODO: remake to accept and check goal as an array of values
-    public checkGoal(goalValue: number): boolean {
-        this.field.forEach((cell) => {
-            if (cell.value >= goalValue) return true;
-        });
-        return false;
-    }
+    public checkGoal = (goalValue: number): boolean => this.field.some((cell) => cell.value >= goalValue);
 
-    public canContinueGame = (): boolean => !(this.checkGoal(GAME.GOAL) || this.getEmptyCellsNum() === 0);
+    public shouldContinueGame = (): boolean => !(this.checkGoal(GAME.GOAL) || this.getEmptyCellsNum() === 0);
 
     // returns random integer, where 0 <= return < max
     protected getRandomVal = (max: number): number => Math.floor(Math.random() * max);

@@ -30,6 +30,7 @@ export default class MainScene extends Phaser.Scene {
     private resetGame(): void {
         this.moveCounter = 0;
         this.uiView.resetCounter();
+        this.uiView.show();
         this.logic.restart();
         this.gameView.reset();
         this.gameView.newTiles(this.logic.addNewTiles(2, GAME.NEW_TILES), this.logic.getFieldValues());
@@ -127,7 +128,7 @@ export default class MainScene extends Phaser.Scene {
     }
 
     private contMove(): void {
-        if (this.logic.canContinueGame()) {
+        if (this.logic.shouldContinueGame()) {
             const freezeResults = this.logic.moveFreeze();
             if (freezeResults.thawed.length > 0 || freezeResults.frozen.length > 0)
                 this.gameView.tweenThawAndFreeze(freezeResults);

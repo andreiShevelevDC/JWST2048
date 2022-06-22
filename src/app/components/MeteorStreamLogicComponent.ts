@@ -16,12 +16,12 @@ export default class MeteorStreamLogicComponent extends LogicComponent {
     private readonly cellFreezeProb = [
         [GAME.CELL_EMPTY, 140],
         [GAME.BASE_TILE ** 2, 100],
-        [GAME.BASE_TILE ** 3, 80],
-        [GAME.BASE_TILE ** 4, 65],
-        [GAME.BASE_TILE ** 5, 50],
-        [GAME.BASE_TILE ** 6, 35],
-        [GAME.BASE_TILE ** 7, 20],
-        [GAME.BASE_TILE ** 8, 15],
+        [GAME.BASE_TILE ** 3, 85],
+        [GAME.BASE_TILE ** 4, 75],
+        [GAME.BASE_TILE ** 5, 65],
+        [GAME.BASE_TILE ** 6, 50],
+        [GAME.BASE_TILE ** 7, 30],
+        [GAME.BASE_TILE ** 8, 20],
         [GAME.BASE_TILE ** 9, 10],
         [GAME.BASE_TILE ** 10, 5],
     ];
@@ -41,6 +41,12 @@ export default class MeteorStreamLogicComponent extends LogicComponent {
 
     public constructor(gameEvents: Phaser.Events.EventEmitter) {
         super(gameEvents);
+        this.initFrozen();
+    }
+
+    public restart(): void {
+        super.restart();
+        this.frozen = [];
         this.initFrozen();
     }
 
@@ -80,7 +86,7 @@ export default class MeteorStreamLogicComponent extends LogicComponent {
                 console.log("Wasn't been able to find a cell to freeze");
                 return { thawed: thawedCells, frozen: frozenCells };
             }
-            const freezeProbe = this.cellThawProb.find((pair) => pair[0] === this.field[cellToFreeze].value);
+            const freezeProbe = this.cellFreezeProb.find((pair) => pair[0] === this.field[cellToFreeze].value);
             if (freezeProbe && this.getRandomVal(1000) <= freezeProbe[1]) {
                 this.freezeCell(cellToFreeze);
                 frozenCells.push(cellToFreeze);
