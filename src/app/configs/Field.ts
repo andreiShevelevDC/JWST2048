@@ -18,10 +18,14 @@ export const JWST_LABEL: Phaser.Types.GameObjects.Text.TextStyle = {
     font: "36px Georgia",
     //fontStyle: "strong",
     //backgroundColor: JWST.cBackground,
-    color: "#000",
+    color: "#3d3200",
     // stroke: ,
     // strokeThickness: ,
     testString: "0123456789",
+};
+
+export const JWST_FROZEN_LABEL: Phaser.Types.GameObjects.Text.TextStyle = {
+    color: "#0001B0",
 };
 
 // export const SIZE = {

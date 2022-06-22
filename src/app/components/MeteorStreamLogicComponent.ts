@@ -14,32 +14,44 @@ export default class MeteorStreamLogicComponent extends LogicComponent {
     // a probability to freeze depends on the cell's value
     // [value, prob percent]
     private readonly cellFreezeProb = [
-        [GAME.CELL_EMPTY, 17],
-        [GAME.BASE_TILE ** 2, 12],
-        [GAME.BASE_TILE ** 3, 10],
-        [GAME.BASE_TILE ** 4, 8],
-        [GAME.BASE_TILE ** 5, 6],
-        [GAME.BASE_TILE ** 6, 4],
-        [GAME.BASE_TILE ** 7, 2],
-        [GAME.BASE_TILE ** 8, 1],
-        [GAME.BASE_TILE ** 9, 0.5],
+        [GAME.CELL_EMPTY, 140],
+        [GAME.BASE_TILE ** 2, 100],
+        [GAME.BASE_TILE ** 3, 80],
+        [GAME.BASE_TILE ** 4, 65],
+        [GAME.BASE_TILE ** 5, 50],
+        [GAME.BASE_TILE ** 6, 35],
+        [GAME.BASE_TILE ** 7, 20],
+        [GAME.BASE_TILE ** 8, 15],
+        [GAME.BASE_TILE ** 9, 10],
+        [GAME.BASE_TILE ** 10, 5],
     ];
     // each move each frozen cells are probed to thaw
     private readonly cellThawProb = [
-        [GAME.CELL_EMPTY, 10],
-        [GAME.BASE_TILE ** 2, 8],
-        [GAME.BASE_TILE ** 3, 6],
-        [GAME.BASE_TILE ** 4, 5],
-        [GAME.BASE_TILE ** 5, 4],
-        [GAME.BASE_TILE ** 6, 3],
-        [GAME.BASE_TILE ** 7, 2],
-        [GAME.BASE_TILE ** 8, 2],
-        [GAME.BASE_TILE ** 9, 2],
+        [GAME.CELL_EMPTY, 65],
+        [GAME.BASE_TILE ** 2, 50],
+        [GAME.BASE_TILE ** 3, 45],
+        [GAME.BASE_TILE ** 4, 40],
+        [GAME.BASE_TILE ** 5, 35],
+        [GAME.BASE_TILE ** 6, 30],
+        [GAME.BASE_TILE ** 7, 27],
+        [GAME.BASE_TILE ** 8, 24],
+        [GAME.BASE_TILE ** 9, 20],
+        [GAME.BASE_TILE ** 10, 18],
     ];
 
     public constructor(gameEvents: Phaser.Events.EventEmitter) {
         super(gameEvents);
         this.initFrozen();
+    }
+
+    // overwrites base method to exchange "-1" to the value from this.frozen
+    public getFieldValues(): number[] {
+        const fieldValues: number[] = [];
+        this.field.forEach((cell, index) => {
+            if (cell.value === -1) fieldValues.push(this.frozen[index]);
+            else fieldValues.push(cell.value);
+        });
+        return fieldValues;
     }
 
     // should be called after the move and before adding new tiles
@@ -69,14 +81,14 @@ export default class MeteorStreamLogicComponent extends LogicComponent {
                 return { thawed: thawedCells, frozen: frozenCells };
             }
             const freezeProbe = this.cellThawProb.find((pair) => pair[0] === this.field[cellToFreeze].value);
-            if (freezeProbe && this.getRandomVal(100) < freezeProbe[1]) {
+            if (freezeProbe && this.getRandomVal(1000) <= freezeProbe[1]) {
                 this.freezeCell(cellToFreeze);
                 frozenCells.push(cellToFreeze);
             }
             if (frozenCells.length >= this.maxNumFrozenCellsPerMove) break;
         }
-        if (frozenCells.length > 0) console.log("FREEZING #", frozenCells);
-        if (thawedCells.length > 0) console.log("THAWING #", thawedCells);
+        //if (frozenCells.length > 0) console.log("FREEZING #", frozenCells);
+        //if (thawedCells.length > 0) console.log("THAWING #", thawedCells);
         return { thawed: thawedCells, frozen: frozenCells };
     }
 
@@ -94,7 +106,7 @@ export default class MeteorStreamLogicComponent extends LogicComponent {
         this.frozen.forEach((frozenVal, index) => {
             if (frozenVal !== GAME.CELL_DISABLED) {
                 thawProb = this.cellThawProb.find((pair) => pair[0] === frozenVal);
-                if (thawProb && this.getRandomVal(100) < thawProb[1]) {
+                if (thawProb && this.getRandomVal(1000) <= thawProb[1]) {
                     this.thawCell(index);
                     thawedCells.push(index);
                 }

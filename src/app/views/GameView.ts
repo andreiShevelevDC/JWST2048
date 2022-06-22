@@ -117,10 +117,12 @@ export default class GameView extends Phaser.GameObjects.Container {
             thawTilesTL.add({
                 targets: this.allHexes[cellIndex],
                 fillColor: THEME.JWST.cHexFill,
+                scale: 1.0,
                 ease: "Sine.easeInOut",
                 duration: 300,
                 repeat: 0,
                 offset: 0,
+                onComplete: () => this.allLabels[cellIndex].setStyle({ color: THEME.JWST_LABEL.color }),
             });
         });
         thawTilesTL.play();
@@ -187,15 +189,16 @@ export default class GameView extends Phaser.GameObjects.Container {
         const freezeTilesTL = this.scene.tweens.createTimeline({
             onComplete: () => this.gameEvents.emit(GAME.EVENT.FREEZEFINISHED),
         });
-        console.log("Freeze tween: ", freeze);
         freeze.forEach((cellIndex) => {
             freezeTilesTL.add({
                 targets: this.allHexes[cellIndex],
                 fillColor: THEME.JWST.cHexFillFrozen,
+                scale: 0.95,
                 ease: "Sine.easeInOut",
                 duration: 300,
                 repeat: 0,
                 offset: 0,
+                onComplete: () => this.allLabels[cellIndex].setStyle({ color: THEME.JWST_FROZEN_LABEL.color }),
             });
         });
         freezeTilesTL.play();

@@ -31,7 +31,7 @@ export enum EVENT {
     FREEZEFINISHED = "eventFreezeFinished",
 }
 
-export const NEW_TILES = [BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE ** 2, BASE_TILE ** 2];
+export const NEW_TILES = [BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE ** 2];
 
 // a value to make to win the game
 export const GOAL = BASE_TILE ** 4; //10;

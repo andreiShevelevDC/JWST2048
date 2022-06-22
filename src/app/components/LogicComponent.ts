@@ -210,7 +210,7 @@ export default class LogicComponent {
             }
         });
         for (let i = 0; i < tempMergedPairs.length; i++) {
-            for (let j = 1; j < tempMergedPairs.length; j++) {
+            for (let j = 0; j < tempMergedPairs.length; j++) {
                 if (tempMergedPairs[i].start === tempMergedPairs[j].finish) {
                     tempMergedPairs[j].start = -1;
                     tempMergedPairs[j].finish = -1;
