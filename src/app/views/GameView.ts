@@ -26,25 +26,50 @@ export default class GameView extends Phaser.GameObjects.Container {
     private gameEvents: Phaser.Events.EventEmitter;
     private videoBacks: Phaser.GameObjects.Video[] = [];
     private currVideoNum: number;
+    private idleTweens: Phaser.Tweens.TweenManager;
+    private movingStars: Phaser.GameObjects.Particles.ParticleEmitterManager;
+    private staticStars: Phaser.GameObjects.Particles.ParticleEmitterManager;
 
     public constructor(scene: Phaser.Scene, eventsEmitter: Phaser.Events.EventEmitter) {
         super(scene);
         this.gameEvents = eventsEmitter;
+        this.idleTweens = new Phaser.Tweens.TweenManager(scene);
         this.setCoordinates();
-        this.showVideoBack();
+        //this.showVideoBack();
         //this.updateVideoBackPosition();
         this.draw();
-        //this.updateLabelsData();
         this.runIdleAnimation(true);
+        this.createStars();
+        this.updateStars();
     }
 
     public reset(): void {
         this.allLabels.forEach((label) => label.setText("").setScale(1.0).setStyle({ color: THEME.JWST_LABEL.color }));
         this.allHexes.forEach((hex) => hex.setScale(1.0).setFillStyle(THEME.JWST.cHexFill, THEME.JWST.aHexFill));
+        console.log(this.idleTweens.getAllTweens());
     }
 
     public showMoveResult(result: GAME.MoveResults, values: number[]): void {
         this.tweenShiftedTiles(result, values);
+    }
+
+    public updateStars(): void {
+        this.scene.time.addEvent({
+            delay: 200, // ms
+            callback: () => this.movingStars.emitParticle(2),
+            callbackScope: this,
+            //repeat: 4,
+            loop: true,
+            paused: false,
+        });
+        this.scene.time.addEvent({
+            delay: 1300, // ms
+            callback: () => this.staticStars.emitParticle(1),
+            callbackScope: this,
+            //repeat: 4,
+            loop: true,
+            paused: false,
+        });
     }
 
     public updatePosition(): void {
@@ -185,6 +210,61 @@ export default class GameView extends Phaser.GameObjects.Container {
         }
     }
 
+    private createStars(): void {
+        const windowShape = new Phaser.Geom.Rectangle(
+            -this.currCenter.x,
+            -this.currCenter.y,
+            2 * this.currCenter.x,
+            2 * this.currCenter.y,
+        );
+        //const movingStarsShape = new Phaser.Geom.Rectangle(0, 0, 2 * this.currCenter.x, 2 * this.currCenter.y);
+        this.movingStars = this.scene.add.particles("particle");
+        this.movingStars.createEmitter({
+            frame: "particle.png",
+            x: this.currCenter.x,
+            y: this.currCenter.y,
+            //follow: null,
+            speedX: { min: -120, max: 120 },
+            speedY: { min: -250, max: 250 },
+            lifespan: { min: 8000, max: 15000 },
+            scale: { start: 0.2, end: 0.8 },
+            alpha: { start: 0.4, end: 1 },
+            blendMode: Phaser.BlendModes.ADD,
+            quantity: { min: 5, max: 25 },
+            tint: THEME.STARS_PALETTE,
+            on: false,
+            // bounds: movingStarsShape,
+            // bounce: 0,
+            // collideBottom: false,
+            // collideTop: false,
+            // collideLeft: false,
+            // collideRight: false,
+            //emitCallback: (speed) => console.log(speed),
+        });
+        this.staticStars = this.scene.add.particles("particle");
+        this.staticStars.createEmitter({
+            //const staticStars = new Phaser.GameObjects.Particles.ParticleEmitter(partMan, {
+            frame: "particle.png",
+            x: this.currCenter.x,
+            y: this.currCenter.y,
+            //follow: null,
+            speed: { min: 0, max: 3 },
+            lifespan: { min: 25000, max: 80000 },
+            scale: { start: 1.5, end: 0.1 },
+            alpha: { start: 1, end: 0.1 },
+            blendMode: Phaser.BlendModes.ADD,
+            quantity: { min: 1, max: 3 },
+            tint: THEME.STARS_PALETTE,
+            on: false,
+            emitZone: {
+                type: "random",
+                source: windowShape as Phaser.Types.GameObjects.Particles.RandomZoneSource,
+            },
+        });
+        this.staticStars.emitParticle(15);
+        this.movingStars.emitParticle(3);
+    }
+
     private tweenFreeze(freeze: number[]): void {
         const freezeTilesTL = this.scene.tweens.createTimeline({
             onComplete: () => this.gameEvents.emit(GAME.EVENT.FREEZEFINISHED),
@@ -287,7 +367,7 @@ export default class GameView extends Phaser.GameObjects.Container {
 
     private idleAnimation(idleHexes: HexIdleAnimation[]): void {
         for (let i = 0; i < idleHexes.length; i++) {
-            this.scene.tweens.add({
+            const idleTween = this.scene.tweens.add({
                 targets: this.allHexes[idleHexes[i].index],
                 alpha: idleHexes[i].alphaLow,
                 ease: "Sine.easeInExpo",
@@ -298,14 +378,16 @@ export default class GameView extends Phaser.GameObjects.Container {
                     this.runIdleAnimation(false);
                 },
             });
+            this.idleTweens.existing(idleTween);
         }
+        // console.log(this.idleTweens.getAllTweens());
     }
 
     private runIdleAnimation(isFirst: boolean): void {
         const clamp = (num: number, min: number, max: number): number => Math.min(Math.max(num, min), max);
 
         let simHexNumber = 1;
-        if (isFirst) simHexNumber = 10;
+        if (isFirst) simHexNumber = 8;
         const idleHexes: HexIdleAnimation[] = [];
         let idleHex: HexIdleAnimation;
         let alpha: number;
@@ -314,7 +396,7 @@ export default class GameView extends Phaser.GameObjects.Container {
             alpha = Math.random();
             alpha = clamp(alpha, 0.8, 1.0);
             idleHex = {
-                index: Math.floor(Math.random() * this.allHexes.length),
+                index: Math.floor(Math.random() * (this.allHexes.length - 1)) + 1, // excludes 0 hex to hide moving stars' emitter point
                 alphaLow: alpha < 0.4 ? alpha * 2 : alpha,
                 duration: Math.floor(Math.random() * 7000) + 3000,
             };

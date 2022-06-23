@@ -32,3 +32,5 @@ export const JWST_FROZEN_LABEL: Phaser.Types.GameObjects.Text.TextStyle = {
 //     WIDTH: 0.8,
 //     HEIGHT: 0.7,
 // };
+
+export const STARS_PALETTE = [0x02377b, 0xf68025, 0xfa9829, 0xffd205, 0xee1652];
