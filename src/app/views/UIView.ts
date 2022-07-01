@@ -22,7 +22,10 @@ export class UIView extends Phaser.GameObjects.Container {
 
     public updateCounter(newValue: number): void {
         this.counter.update(newValue);
-        this.playMoveSound(); // as counter is updated only at the end of a move
+    }
+
+    public playMoveSound(): void {
+        this.moveSound.play();
     }
 
     public resetCounter(): void {
@@ -60,10 +63,6 @@ export class UIView extends Phaser.GameObjects.Container {
 
     public updatePosition(): void {
         this.counter.updatePosition();
-    }
-
-    private playMoveSound(): void {
-        this.moveSound.play();
     }
 
     private init(): void {

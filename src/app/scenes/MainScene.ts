@@ -101,10 +101,10 @@ export default class MainScene extends Phaser.Scene {
                 this.uiView.hide();
                 this.gameView.tweenWinGame();
                 break;
-            case GAME.UI_KEYS[3]:
-            case GAME.UI_KEYS[4]:
-            case GAME.UI_KEYS[5]:
-                this.gameView.changeVideo(key);
+            // case GAME.UI_KEYS[3]:
+            // case GAME.UI_KEYS[4]:
+            // case GAME.UI_KEYS[5]:
+            //     this.gameView.changeVideo(key);
         }
     }
 
@@ -141,6 +141,7 @@ export default class MainScene extends Phaser.Scene {
 
     private finishMove(): void {
         this.gameView.newTiles(this.logic.addNewTiles(1, GAME.NEW_TILES), this.logic.getFieldValues());
+        this.uiView.playMoveSound();
         this.gameState = GAME.STATE.WAIT;
     }
 

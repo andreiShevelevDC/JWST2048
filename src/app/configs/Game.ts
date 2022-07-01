@@ -79,3 +79,12 @@ export const UI_KEYS = [
 ];
 
 export const TOUCH_BAR_WIDTH = 100;
+
+export enum ELEMENTSDEPTH {
+    //FILLBACK,
+    //VIDEO,
+    SHADERBACK,
+    STILLSTARS,
+    MOVINGSTARS,
+    FIELD,
+}
