@@ -14,27 +14,27 @@ export default class MeteorStreamLogicComponent extends LogicComponent {
     // a probability to freeze depends on the cell's value
     // [value, prob percent]
     private readonly cellFreezeProb = [
-        [GAME.CELL_EMPTY, 140],
-        [GAME.BASE_TILE ** 2, 100],
-        [GAME.BASE_TILE ** 3, 85],
-        [GAME.BASE_TILE ** 4, 75],
-        [GAME.BASE_TILE ** 5, 65],
-        [GAME.BASE_TILE ** 6, 50],
-        [GAME.BASE_TILE ** 7, 30],
-        [GAME.BASE_TILE ** 8, 20],
+        [GAME.CELL_EMPTY, 120],
+        [GAME.BASE_TILE ** 2, 90],
+        [GAME.BASE_TILE ** 3, 75],
+        [GAME.BASE_TILE ** 4, 65],
+        [GAME.BASE_TILE ** 5, 50],
+        [GAME.BASE_TILE ** 6, 35],
+        [GAME.BASE_TILE ** 7, 20],
+        [GAME.BASE_TILE ** 8, 15],
         [GAME.BASE_TILE ** 9, 10],
         [GAME.BASE_TILE ** 10, 5],
     ];
     // each move each frozen cells are probed to thaw
     private readonly cellThawProb = [
-        [GAME.CELL_EMPTY, 65],
-        [GAME.BASE_TILE ** 2, 50],
-        [GAME.BASE_TILE ** 3, 45],
-        [GAME.BASE_TILE ** 4, 40],
-        [GAME.BASE_TILE ** 5, 35],
-        [GAME.BASE_TILE ** 6, 30],
-        [GAME.BASE_TILE ** 7, 27],
-        [GAME.BASE_TILE ** 8, 24],
+        [GAME.CELL_EMPTY, 85],
+        [GAME.BASE_TILE ** 2, 75],
+        [GAME.BASE_TILE ** 3, 65],
+        [GAME.BASE_TILE ** 4, 60],
+        [GAME.BASE_TILE ** 5, 45],
+        [GAME.BASE_TILE ** 6, 40],
+        [GAME.BASE_TILE ** 7, 30],
+        [GAME.BASE_TILE ** 8, 25],
         [GAME.BASE_TILE ** 9, 20],
         [GAME.BASE_TILE ** 10, 18],
     ];

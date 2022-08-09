@@ -1,4 +1,5 @@
 export const SIZE = 3; // central hex + 2 rings = 19 cells
+export const USE_VIDEO_BACKGROUND = true; // instead of particles & shader
 
 export const CELL_EMPTY = 0;
 export const CELL_DISABLED = -1; // for field configurations with gaps or out of borders
@@ -34,7 +35,7 @@ export enum EVENT {
 export const NEW_TILES = [BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE, BASE_TILE ** 2];
 
 // a value to make to win the game
-export const GOAL = BASE_TILE ** 4; //10;
+export const GOAL = BASE_TILE ** 10;
 
 // direction vectors
 export const DIRECTION = {

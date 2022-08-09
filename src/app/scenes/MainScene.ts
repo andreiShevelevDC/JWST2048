@@ -101,10 +101,10 @@ export default class MainScene extends Phaser.Scene {
                 this.uiView.hide();
                 this.gameView.tweenWinGame();
                 break;
-            // case GAME.UI_KEYS[3]:
-            // case GAME.UI_KEYS[4]:
-            // case GAME.UI_KEYS[5]:
-            //     this.gameView.changeVideo(key);
+            case GAME.UI_KEYS[3]:
+            case GAME.UI_KEYS[4]:
+            case GAME.UI_KEYS[5]:
+                if (GAME.USE_VIDEO_BACKGROUND) this.gameView.changeVideo(key);
         }
     }
 

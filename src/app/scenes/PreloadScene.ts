@@ -3,6 +3,7 @@ import { audioAssets } from "../../assets/assetsNames/audio";
 import { spines } from "../../assets/assetsNames/spines";
 import { spriteSheets } from "../../assets/assetsNames/spriteSheets";
 import { SceneNames } from "../enums/Scenes";
+import { USE_VIDEO_BACKGROUND } from "../configs/Game";
 
 export default class PreloadScene extends Phaser.Scene {
     public constructor() {
@@ -16,13 +17,15 @@ export default class PreloadScene extends Phaser.Scene {
         this.loadAudio();
         this.loadSpines();
 
-        // this.load.video("video_back1", "../assets/video_back/52759730.mp4", "loadeddata", false, true);
-        // this.load.video("video_back2", "../assets/video_back/53033356.mp4", "loadeddata", false, true);
-        // this.load.video("video_back3", "../assets/video_back/117416121.mp4", "loadeddata", false, true);
-        // this.load.video("video_back4", "../assets/video_back/117419841.mp4", "loadeddata", false, true);
-        // this.load.video("video_back5", "../assets/video_back/143679958.mp4", "loadeddata", false, true);
-
-        this.load.glsl("marble", "../assets/video_back/marble.glsl");
+        if (USE_VIDEO_BACKGROUND) {
+            this.load.video("video_back1", "../assets/video_back/52759730.mp4", "loadeddata", false, true);
+            this.load.video("video_back2", "../assets/video_back/53033356.mp4", "loadeddata", false, true);
+            this.load.video("video_back3", "../assets/video_back/117416121.mp4", "loadeddata", false, true);
+            this.load.video("video_back4", "../assets/video_back/117419841.mp4", "loadeddata", false, true);
+            this.load.video("video_back5", "../assets/video_back/143679958.mp4", "loadeddata", false, true);
+        } else {
+            this.load.glsl("marble", "../assets/video_back/marble.glsl");
+        }
     }
 
     private init(): void {
